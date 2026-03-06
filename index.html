@@ -4,12 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#0a0a0a">
-    <title>ORDEM PARANORMAL - RPG MOBILE</title>
-    
+    <title>ORDEM PARANORMAL - V8</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body class="bg-conhecimento">
     <div class="sanity-warning" id="sanityBorder"></div>
+    <div class="hp-warning" id="hpBorder"></div>
     <div class="symbol-bg" id="elementSymbol">✦</div>
     
     <div class="cast-overlay" id="castOverlay">
@@ -19,108 +19,38 @@
     <div class="app-container">
         <header class="app-header">
             <h1 class="app-title">ORDEM PARANORMAL</h1>
-            <div class="app-subtitle">SISTEMA DE FICHAS</div>
+            <div class="app-subtitle">SISTEMA DE FICHAS V8</div>
         </header>
         
         <div class="char-selector" id="charSelector"></div>
         
         <div class="action-bar">
-            <button class="action-btn primary" onclick="openDice()">🎲 Dados</button>
-            <button class="action-btn secondary" onclick="openRitualLibrary()">📜 Rituais</button>
-            <button class="action-btn accent" onclick="openInventory()">🎒 Inventário</button>
-            <button class="action-btn" onclick="openNewChar()" style="border-color: var(--san); color: var(--san);">+ Novo</button>
+            <button class="action-btn primary" onclick="app.openDice()">🎲 Dados</button>
+            <button class="action-btn secondary" onclick="app.openRitualLibrary()">📜 Rituais</button>
+            <button class="action-btn accent" onclick="app.openInventory()">🎒 Inventário</button>
+            <button class="action-btn" onclick="app.openNewChar()" style="border-color: var(--san); color: var(--san);">+ Novo</button>
         </div>
         
         <div class="data-actions">
-            <button class="data-btn" onclick="exportData()">📤 Exportar</button>
-            <button class="data-btn" onclick="importData()">📥 Importar</button>
-            <button class="data-btn" onclick="duplicateChar()" id="dupBtn" style="display:none;">👥 Duplicar</button>
-            <button class="data-btn danger" onclick="confirmDeleteChar()" id="delBtn" style="display:none;">🗑️ Deletar</button>
+            <button class="data-btn" onclick="app.exportData()">📤 Exportar</button>
+            <button class="data-btn" onclick="app.importData()">📥 Importar</button>
+            <button class="data-btn" onclick="app.duplicateChar()" id="dupBtn" style="display:none;">👥 Duplicar</button>
+            <button class="data-btn danger" onclick="app.confirmDeleteChar()" id="delBtn" style="display:none;">🗑️ Deletar</button>
         </div>
         
         <div class="sheet-container" id="sheetContainer"></div>
     </div>
     
-    <div class="modal-panel" id="diceModal">
-        <div class="modal-header">
-            <span class="modal-title">◈ ROLAGEM ◈</span>
-            <button class="modal-close" onclick="closeDice()">×</button>
-        </div>
-        <div class="modal-content">
-            <div class="dice-grid">
-                <button class="dice-btn" onclick="roll(4)">d4</button>
-                <button class="dice-btn" onclick="roll(6)">d6</button>
-                <button class="dice-btn" onclick="roll(8)">d8</button>
-                <button class="dice-btn" onclick="roll(10)">d10</button>
-                <button class="dice-btn" onclick="roll(12)">d12</button>
-                <button class="dice-btn" onclick="roll(20)">d20</button>
-                <button class="dice-btn" onclick="roll(100)">d100</button>
-                <button class="dice-btn" onclick="rollCrit()" style="border-color: var(--sangue); color: var(--sangue-light);">CRIT</button>
-            </div>
-            
-            <div class="form-group">
-                <label class="form-label">Modificador</label>
-                <input type="number" class="form-input" id="diceMod" placeholder="+0" value="0">
-            </div>
-            
-            <div class="dice-result" id="diceResult" style="display:none;">
-                <div class="result-number" id="resultNum">0</div>
-                <div class="result-label" id="resultLabel">d20</div>
-                <div class="result-rolls" id="resultRolls"></div>
-            </div>
-            
-            <div class="history-list" id="rollHistory"></div>
-        </div>
-    </div>
-    
-    <div class="modal-panel" id="ritualLibraryModal">
-        <div class="modal-header">
-            <span class="modal-title">◈ BIBLIOTECA DE RITUAIS ◈</span>
-            <button class="modal-close" onclick="closeRitualLibrary()">×</button>
-        </div>
-        <div class="modal-content">
-            <div class="ritual-search">
-                <input type="text" class="search-input" id="ritualSearch" placeholder="🔍 Pesquisar ritual..." oninput="filterRituals()">
-                <div class="ritual-filters">
-                    <button class="filter-btn active" onclick="setElementFilter('all')">Todos</button>
-                    <button class="filter-btn sangue" onclick="setElementFilter('sangue')">🩸 Sangue</button>
-                    <button class="filter-btn morte" onclick="setElementFilter('morte')">☠️ Morte</button>
-                    <button class="filter-btn conhecimento" onclick="setElementFilter('conhecimento')">📚 Conhecimento</button>
-                    <button class="filter-btn energia" onclick="setElementFilter('energia')">⚡ Energia</button>
-                    <button class="filter-btn medo" onclick="setElementFilter('medo')">👁️ Medo</button>
-                </div>
-            </div>
-            <div id="ritualLibraryList"></div>
-        </div>
-    </div>
-    
-    <div class="ritual-detail-modal" id="ritualDetailModal">
-        <div class="modal-header">
-            <span class="modal-title">◈ DETALHES DO RITUAL ◈</span>
-            <button class="modal-close" onclick="closeRitualDetail()">×</button>
-        </div>
-        <div class="ritual-detail-content" id="ritualDetailContent"></div>
-    </div>
-    
-    <div class="modal-panel" id="inventoryModal">
-        <div class="modal-header">
-            <span class="modal-title">◈ INVENTÁRIO ◈</span>
-            <button class="modal-close" onclick="closeInventory()">×</button>
-        </div>
-        <div class="modal-content" id="inventoryContent"></div>
-    </div>
-    
     <div class="modal-panel" id="newCharModal">
         <div class="modal-header">
             <span class="modal-title">◈ NOVO AGENTE ◈</span>
-            <button class="modal-close" onclick="closeNewChar()">×</button>
+            <button class="modal-close" onclick="app.closeNewChar()">×</button>
         </div>
         <div class="modal-content">
             <div class="form-group">
                 <label class="form-label">Nome</label>
                 <input type="text" class="form-input" id="newName" placeholder="Nome do Agente">
             </div>
-            
             <div class="form-row">
                 <div class="form-group">
                     <label class="form-label">Classe</label>
@@ -133,7 +63,7 @@
                 </div>
                 <div class="form-group">
                     <label class="form-label">Elemento</label>
-                    <select class="form-select" id="newElement" onchange="previewElement(this.value)">
+                    <select class="form-select" id="newElement">
                         <option value="sangue">🩸 Sangue</option>
                         <option value="morte">☠️ Morte</option>
                         <option value="conhecimento" selected>📚 Conhecimento</option>
@@ -142,30 +72,7 @@
                     </select>
                 </div>
             </div>
-            
-            <div class="form-row">
-                <div class="form-group">
-                    <label class="form-label">NEX</label>
-                    <input type="text" class="form-input" id="newNex" value="15%" placeholder="15%">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Origem</label>
-                    <input type="text" class="form-input" id="newOrigin" placeholder="Ex: Acadêmico">
-                </div>
-            </div>
-            
-            <button class="btn-primary" onclick="createCharacter()">CRIAR AGENTE</button>
-        </div>
-    </div>
-    
-    <div class="confirm-modal" id="deleteConfirmModal">
-        <div class="confirm-box">
-            <div class="confirm-title">⚠️ ATENÇÃO</div>
-            <div class="confirm-text">Tem certeza que deseja apagar esta ficha permanentemente?</div>
-            <div class="confirm-buttons">
-                <button class="confirm-btn yes" onclick="deleteCharacter()">SIM</button>
-                <button class="confirm-btn no" onclick="closeDeleteConfirm()">NÃO</button>
-            </div>
+            <button class="btn-primary" onclick="app.createCharacter()">CRIAR AGENTE</button>
         </div>
     </div>
 
