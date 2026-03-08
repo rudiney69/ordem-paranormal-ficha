@@ -1,216 +1,2310 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>ORDEM PARANORMAL V8.1 - EXPANDIDA</title>
-    <style>
-        /* Reutilizando a base da V8 e adicionando melhorias */
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Courier+Prime&display=swap');
-        
-        :root {
-            --dark: #050505; --surface: #121212; --border: #2a2a2a;
-            --sangue: #ff1a1a; --morte: #9d9d9d; --conhecimento: #ffd700; --energia: #da70d6;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#050508">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>ORDEM PARANORMAL</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Cinzel+Decorative:wght@700&family=Share+Tech+Mono&family=Uncial+Antiqua&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════
+   TOKENS & RESET
+══════════════════════════════════════════ */
+:root{
+  --bg:#050508;
+  --bg2:#0a0a10;
+  --surface:rgba(12,12,20,0.92);
+  --surface2:rgba(20,20,32,0.95);
+  --border:rgba(255,255,255,0.07);
+  --border2:rgba(255,255,255,0.13);
+  --text:#eeeef8;
+  --dim:#666688;
 
-        body { font-family: 'Courier Prime', monospace; background: var(--dark); color: #eee; margin: 0; padding-bottom: 80px; }
-        .app-header { background: #000; padding: 20px; text-align: center; border-bottom: 1px solid var(--border); }
-        .app-title { font-family: 'Cinzel'; letter-spacing: 3px; color: #fff; margin: 0; }
+  /* elementos — baseado nas imagens */
+  --sangue:#cc1111;     --sangue-l:#ff3333;  --sangue-g:rgba(204,17,17,0.35);
+  --energia:#8800ff;    --energia-l:#bb44ff; --energia-g:rgba(136,0,255,0.35);
+  --morte:#5555aa;      --morte-l:#9999ee;   --morte-g:rgba(85,85,170,0.35);
+  --conhecimento:#cc8800; --conhecimento-l:#ffbb00; --conhecimento-g:rgba(255,187,0,0.3);
+  --medo:#220033;       --medo-l:#aa33ff;    --medo-g:rgba(170,51,255,0.35);
 
-        /* Estilo da Ficha Profissional */
-        .sheet-card { background: var(--surface); margin: 15px; border-radius: 12px; border: 1px solid var(--border); padding: 20px; }
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        
-        .field-label { font-size: 0.65rem; color: #666; text-transform: uppercase; display: block; margin-bottom: 4px; }
-        .field-input { width: 100%; background: #000; border: 1px solid #333; color: #fff; padding: 10px; border-radius: 6px; font-family: inherit; margin-bottom: 10px; }
+  --hp-color:#ff3333;
+  --san-color:#9966ff;
+  --pe-color:#ffbb00;
 
-        /* Sistema de Rituais Estilizado */
-        .ritual-item { background: #1a1a1a; border-left: 4px solid var(--border); padding: 15px; margin-bottom: 10px; border-radius: 0 8px 8px 0; }
-        .ritual-name { font-family: 'Cinzel'; font-size: 1.1rem; display: block; }
-        .ritual-meta { font-size: 0.75rem; color: #888; margin: 5px 0; }
-        .wiki-link { color: var(--conhecimento); text-decoration: none; font-size: 0.7rem; border: 1px solid var(--conhecimento); padding: 2px 6px; border-radius: 4px; margin-top: 10px; display: inline-block; }
+  --radius:6px;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
 
-        /* Perícias */
-        .skill-list { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
-        .skill-item { font-size: 0.8rem; background: #080808; padding: 8px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; }
-        .skill-val { color: var(--conhecimento); font-weight: bold; }
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;overflow:hidden;}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Share Tech Mono',monospace;
+  font-size:14px;
+  overscroll-behavior:none;
+  -webkit-overflow-scrolling:touch;
+}
 
-        /* Navegação */
-        .nav-bar { position: fixed; bottom: 0; width: 100%; background: #000; display: flex; justify-content: space-around; padding: 15px; border-top: 1px solid var(--border); z-index: 100; }
-        .nav-btn { background: none; border: none; color: #666; font-size: 0.7rem; text-transform: uppercase; cursor: pointer; }
-        .nav-btn.active { color: #fff; font-weight: bold; }
-        
-        .hidden { display: none; }
-    </style>
+/* ══════════════════════════════════════════
+   CANVAS BG
+══════════════════════════════════════════ */
+#c{position:fixed;inset:0;z-index:0;pointer-events:none;}
+
+/* ══════════════════════════════════════════
+   APP SHELL — MOBILE LAYOUT
+══════════════════════════════════════════ */
+#app{
+  position:relative;z-index:10;
+  display:flex;flex-direction:column;
+  height:100%;height:100dvh;
+}
+
+/* ── TOP BAR ── */
+#topbar{
+  flex-shrink:0;
+  display:flex;align-items:center;
+  background:rgba(5,5,8,0.96);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+  padding:env(safe-area-inset-top,0) 0 0;
+  min-height:52px;
+  position:relative;z-index:50;
+}
+#logo-btn{
+  padding:0 14px;
+  display:flex;flex-direction:column;align-items:flex-start;
+  border-right:1px solid var(--border);
+  cursor:pointer;
+  flex-shrink:0;
+}
+#logo-txt{
+  font-family:'Cinzel Decorative',serif;
+  font-size:0.55rem;letter-spacing:3px;
+  color:var(--sangue-l);
+  text-shadow:0 0 12px var(--sangue);
+}
+#logo-sub{font-size:0.4rem;color:var(--dim);letter-spacing:2px;}
+
+#char-tabs{
+  flex:1;display:flex;overflow-x:auto;scrollbar-width:none;
+  align-items:stretch;
+}
+#char-tabs::-webkit-scrollbar{display:none;}
+.ctab{
+  flex-shrink:0;
+  padding:0 14px;min-width:80px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-size:0.55rem;letter-spacing:1px;color:var(--dim);
+  background:none;border:none;
+  border-bottom:2px solid transparent;
+  cursor:pointer;transition:all 0.2s;
+  position:relative;
+}
+.ctab.active{color:var(--text);border-bottom-color:var(--tab-c,var(--sangue-l));}
+.ctab-name{font-size:0.65rem;line-height:1;margin-bottom:2px;max-width:70px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.ctab-lvl{font-size:0.45rem;color:var(--dim);}
+#add-char-btn{
+  flex-shrink:0;padding:0 14px;
+  background:none;border:none;border-left:1px solid var(--border);
+  color:var(--dim);font-size:1.2rem;cursor:pointer;
+  transition:color 0.2s;min-height:52px;
+}
+#add-char-btn:hover{color:var(--text);}
+
+/* ── SCROLLABLE CONTENT ── */
+#content{
+  flex:1;overflow-y:auto;overflow-x:hidden;
+  overscroll-behavior-y:contain;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+  padding-bottom:calc(70px + var(--safe-bottom));
+}
+#content::-webkit-scrollbar{display:none;}
+
+/* ── BOTTOM NAV ── */
+#bottomnav{
+  position:fixed;bottom:0;left:0;right:0;z-index:50;
+  background:rgba(5,5,8,0.97);
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+  border-top:1px solid var(--border);
+  display:flex;
+  padding-bottom:var(--safe-bottom);
+}
+.bnav-btn{
+  flex:1;padding:10px 4px 8px;
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  background:none;border:none;cursor:pointer;
+  color:var(--dim);font-size:0.45rem;letter-spacing:1px;
+  transition:all 0.2s;position:relative;
+}
+.bnav-btn .icon{font-size:1.25rem;transition:all 0.25s;}
+.bnav-btn::after{
+  content:'';position:absolute;bottom:0;left:20%;right:20%;
+  height:2px;background:var(--nav-c,var(--sangue-l));border-radius:2px 2px 0 0;
+  opacity:0;transform:scaleX(0);transition:all 0.25s;
+}
+.bnav-btn.active{color:var(--nav-c,var(--sangue-l));}
+.bnav-btn.active .icon{
+  filter:drop-shadow(0 0 5px var(--nav-c,var(--sangue-l)));
+  transform:translateY(-2px);
+}
+.bnav-btn.active::after{opacity:1;transform:scaleX(1);}
+
+/* ══════════════════════════════════════════
+   PAGE SECTIONS
+══════════════════════════════════════════ */
+.page{display:none;padding:12px;}
+.page.active{display:block;}
+
+/* ══════════════════════════════════════════
+   SECTION TITLES
+══════════════════════════════════════════ */
+.sec-title{
+  font-family:'Cinzel',serif;
+  font-size:0.6rem;letter-spacing:3px;color:var(--dim);
+  display:flex;align-items:center;gap:8px;
+  margin:16px 0 10px;
+}
+.sec-title::before{content:'';width:3px;height:10px;background:var(--sec-c,var(--sangue));box-shadow:0 0 6px var(--sec-c,var(--sangue));}
+.sec-title::after{content:'';flex:1;height:1px;background:var(--border);}
+
+/* ══════════════════════════════════════════
+   PAGE: FICHA (home)
+══════════════════════════════════════════ */
+
+/* CHAR BANNER */
+.char-banner{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  overflow:hidden;
+  position:relative;
+}
+.char-banner-bg{
+  position:absolute;inset:0;
+  background:radial-gradient(ellipse at top right, var(--elem-g,var(--sangue-g)),transparent 65%);
+  pointer-events:none;
+}
+.char-banner-inner{
+  display:flex;gap:12px;padding:14px;
+  position:relative;z-index:1;
+}
+.char-photo-wrap{
+  flex-shrink:0;width:80px;height:96px;
+  border:2px solid var(--elem-c,var(--sangue));
+  box-shadow:0 0 15px var(--elem-g,var(--sangue-g));
+  border-radius:4px;overflow:hidden;
+  cursor:pointer;background:#000;
+  position:relative;
+}
+.char-photo-wrap img{width:100%;height:100%;object-fit:cover;display:none;}
+.photo-ph{
+  width:100%;height:100%;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  color:var(--dim);font-size:1.8rem;gap:2px;
+}
+.photo-ph small{font-size:0.4rem;letter-spacing:1px;}
+#photo-input{display:none;}
+
+.char-details{flex:1;min-width:0;}
+.char-name-big{
+  font-family:'Cinzel',serif;
+  font-size:1.05rem;line-height:1.2;
+  color:var(--text);
+  cursor:pointer;
+  word-break:break-word;
+  margin-bottom:5px;
+}
+.char-name-big:active{opacity:0.7;}
+.char-badges{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px;}
+.badge{
+  padding:2px 7px;border:1px solid;border-radius:20px;
+  font-size:0.5rem;letter-spacing:1px;
+}
+.badge-class{border-color:var(--conhecimento);color:var(--conhecimento-l);}
+.badge-nex{border-color:var(--energia-l);color:var(--energia-l);}
+.badge-org{border-color:var(--morte-l);color:var(--morte-l);}
+.badge-elem{border-color:var(--elem-c,var(--sangue));color:var(--elem-c,var(--sangue));}
+
+/* ELEM SYMBOL */
+.elem-symbol-wrap{
+  position:absolute;bottom:8px;right:10px;
+  width:40px;height:40px;opacity:0.25;
+  pointer-events:none;
+}
+
+/* CONDITIONS */
+.conds{display:flex;flex-wrap:wrap;gap:5px;padding:0 14px 12px;}
+.cond-btn{
+  padding:3px 9px;border:1px solid;border-radius:2px;
+  font-size:0.5rem;letter-spacing:1px;
+  background:none;cursor:pointer;
+  transition:all 0.2s;opacity:0.3;color:var(--cc);border-color:var(--cc);
+}
+.cond-btn.on{
+  opacity:1;
+  background:rgba(100,30,30,0.25);
+  box-shadow:0 0 8px rgba(200,50,50,0.3);
+}
+
+/* STATUS BARS */
+.bars-wrap{display:flex;flex-direction:column;gap:10px;}
+.bar-block{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:12px;
+  transition:border-color 0.3s;
+}
+.bar-block.danger{
+  border-color:rgba(255,51,51,0.4);
+  animation:dangerPulse 1.5s ease-in-out infinite;
+}
+@keyframes dangerPulse{
+  0%,100%{border-color:rgba(255,51,51,0.2);}
+  50%{border-color:rgba(255,51,51,0.6);box-shadow:0 0 10px rgba(255,51,51,0.2);}
+}
+.bar-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+.bar-label{font-size:0.6rem;letter-spacing:2px;color:var(--dim);}
+.bar-nums{
+  font-family:'Cinzel',serif;
+  font-size:1rem;font-weight:700;
+  color:var(--bc);
+  cursor:pointer;
+}
+.bar-nums:active{opacity:0.6;}
+.bar-track{
+  height:16px;background:rgba(0,0,0,0.7);
+  border:1px solid rgba(255,255,255,0.05);
+  border-radius:8px;overflow:hidden;
+  position:relative;cursor:pointer;
+  margin-bottom:8px;
+}
+.bar-track::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(255,255,255,0.08) 0%,transparent 60%);
+  pointer-events:none;border-radius:8px;
+}
+.bar-fill{
+  height:100%;border-radius:8px;
+  transition:width 0.6s cubic-bezier(.4,0,.2,1);
+  position:relative;
+}
+.bar-fill::after{
+  content:'';position:absolute;right:0;top:10%;bottom:10%;
+  width:3px;background:rgba(255,255,255,0.6);filter:blur(2px);
+  border-radius:2px;
+}
+.fill-hp {background:linear-gradient(90deg,#4a0000,#cc1111,#ff4444);}
+.fill-san{background:linear-gradient(90deg,#100028,#6633cc,#9966ff);}
+.fill-pe {background:linear-gradient(90deg,#2a1800,#aa7700,#ffbb00);}
+.bar-btns{display:flex;gap:4px;}
+.bb{
+  flex:1;padding:6px 2px;
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.06);
+  color:var(--dim);cursor:pointer;
+  font-family:'Share Tech Mono';font-size:0.75rem;
+  border-radius:3px;transition:all 0.15s;
+  -webkit-tap-highlight-color:transparent;
+}
+.bb:active{transform:scale(0.93);background:rgba(255,255,255,0.1);}
+.bb.neg:active{border-color:var(--sangue-l);color:var(--sangue-l);}
+.bb.pos:active{border-color:var(--energia-l);color:var(--energia-l);}
+.bb.sp{border-style:dashed;font-size:0.65rem;}
+
+/* SANITY PANEL */
+.sanity-panel{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:14px;
+  position:relative;overflow:hidden;
+}
+.san-inner{
+  position:absolute;inset:0;
+  background:radial-gradient(ellipse at bottom left,rgba(153,102,255,0.06),transparent 70%);
+  pointer-events:none;
+}
+.san-title{font-family:'Cinzel',serif;font-size:0.7rem;letter-spacing:3px;color:var(--san-color);margin-bottom:10px;}
+.san-level{
+  display:flex;justify-content:space-between;align-items:center;
+  font-size:0.75rem;color:var(--text);margin-bottom:4px;
+}
+.san-desc{font-size:0.65rem;color:var(--dim);line-height:1.5;font-style:italic;}
+.san-orbs{display:flex;gap:5px;flex-wrap:wrap;margin-top:10px;}
+.san-orb{
+  width:20px;height:20px;border-radius:50%;
+  border:1px solid rgba(153,102,255,0.3);
+  cursor:pointer;transition:all 0.2s;
+  background:rgba(153,102,255,0.05);
+}
+.san-orb.filled{
+  background:var(--san-color);
+  box-shadow:0 0 6px var(--san-color);
+  border-color:var(--san-color);
+}
+
+/* ATTRS PENTAGON (canvas-based) */
+.penta-wrap{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:14px;
+  display:flex;flex-direction:column;align-items:center;
+}
+.penta-canvas-wrap{position:relative;width:220px;height:220px;margin:0 auto;}
+#penta-canvas{width:220px;height:220px;}
+.penta-nodes{position:absolute;inset:0;}
+.pnode{
+  position:absolute;
+  width:52px;height:52px;
+  transform:translate(-50%,-50%);
+  background:rgba(5,5,10,0.9);
+  border:2px solid var(--nc);
+  border-radius:50%;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  cursor:pointer;
+  box-shadow:0 0 12px rgba(80,80,200,0.3);
+  transition:all 0.2s;
+  -webkit-tap-highlight-color:transparent;
+}
+.pnode:active{transform:translate(-50%,-50%) scale(0.88);}
+.pnode-val{
+  font-family:'Cinzel',serif;
+  font-size:1.1rem;font-weight:700;
+  color:var(--nc);line-height:1;
+}
+.pnode-key{font-size:0.4rem;color:rgba(255,255,255,0.4);letter-spacing:1px;}
+.pnode-ctrls{display:flex;gap:2px;margin-top:2px;}
+.pnbtn{
+  font-size:0.5rem;padding:1px 5px;
+  background:none;border:1px solid rgba(255,255,255,0.1);
+  color:rgba(255,255,255,0.35);cursor:pointer;border-radius:1px;
+}
+.pnbtn:active{background:rgba(255,255,255,0.15);color:#fff;}
+
+/* ══════════════════════════════════════════
+   PAGE: DADOS
+══════════════════════════════════════════ */
+.dice-page{display:flex;flex-direction:column;gap:12px;}
+
+/* ARENA */
+.dice-arena{
+  background:var(--surface);border:1px solid rgba(255,153,0,0.15);
+  border-radius:var(--radius);
+  min-height:200px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  position:relative;overflow:hidden;
+  cursor:pointer;-webkit-tap-highlight-color:transparent;
+}
+.arena-bg-symbol{
+  position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:9rem;opacity:0.04;pointer-events:none;
+  user-select:none;
+}
+.arena-die{font-size:4rem;position:relative;z-index:2;transition:transform 0.1s;}
+.arena-die.rolling{animation:dRoll 0.55s cubic-bezier(.17,.67,.35,1.2);}
+@keyframes dRoll{
+  0%{transform:rotate(0) scale(1);}
+  30%{transform:rotate(240deg) scale(1.4);}
+  65%{transform:rotate(600deg) scale(0.85);}
+  85%{transform:rotate(680deg) scale(1.1);}
+  100%{transform:rotate(720deg) scale(1);}
+}
+.arena-result{
+  position:absolute;z-index:3;
+  font-family:'Cinzel',serif;
+  font-size:3.5rem;font-weight:900;
+  pointer-events:none;
+  opacity:0;transition:opacity 0.15s;
+  text-shadow:0 0 30px currentColor,0 0 60px currentColor;
+}
+.arena-result.show{opacity:1;animation:rPop 0.35s ease-out;}
+@keyframes rPop{
+  from{transform:scale(0.5) translateY(10px);opacity:0;}
+  70%{transform:scale(1.1) translateY(-3px);}
+  to{transform:scale(1) translateY(0);opacity:1;}
+}
+.arena-result.CRIT{color:#ffcc00;}
+.arena-result.FAIL{color:#ff2244;}
+.arena-hint{
+  position:absolute;bottom:10px;
+  font-size:0.55rem;color:var(--dim);letter-spacing:2px;
+  pointer-events:none;
+}
+.arena-hist{
+  position:absolute;top:8px;left:0;right:0;
+  display:flex;gap:3px;justify-content:center;flex-wrap:wrap;
+  padding:0 8px;
+}
+.hist-dot{
+  width:24px;height:24px;border:1px solid rgba(255,255,255,0.12);
+  border-radius:3px;display:flex;align-items:center;justify-content:center;
+  font-family:'Cinzel',serif;font-size:0.6rem;color:var(--dim);
+  flex-shrink:0;
+}
+.hist-dot.c{border-color:var(--conhecimento-l);color:var(--conhecimento-l);}
+.hist-dot.f{border-color:var(--sangue-l);color:var(--sangue-l);}
+
+/* DIE GRID */
+.die-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:6px;
+}
+.die-btn{
+  padding:12px 4px;
+  background:var(--surface);border:1px solid rgba(255,153,0,0.18);
+  color:var(--dim);cursor:pointer;
+  font-family:'Cinzel',serif;font-size:0.8rem;letter-spacing:1px;
+  border-radius:var(--radius);text-align:center;
+  transition:all 0.15s;
+  -webkit-tap-highlight-color:transparent;
+}
+.die-btn.sel{
+  border-color:var(--conhecimento-l);color:var(--conhecimento-l);
+  background:rgba(255,187,0,0.07);
+  box-shadow:0 0 8px rgba(255,187,0,0.2);
+}
+.die-btn:active{transform:scale(0.92);}
+
+/* ROLL CONTROLS */
+.roll-row{display:flex;gap:8px;}
+.qty-input{
+  width:56px;padding:10px;text-align:center;
+  background:rgba(0,0,0,0.6);border:1px solid var(--border2);
+  color:var(--text);font-family:'Cinzel',serif;font-size:1rem;
+  border-radius:var(--radius);
+}
+.qty-input:focus{outline:none;border-color:var(--conhecimento);}
+.roll-btn{
+  flex:1;padding:10px;
+  background:linear-gradient(135deg,rgba(255,153,0,0.2),rgba(255,153,0,0.06));
+  border:1px solid var(--conhecimento-l);
+  color:var(--conhecimento-l);cursor:pointer;
+  font-family:'Cinzel',serif;font-size:0.75rem;letter-spacing:3px;
+  border-radius:var(--radius);
+  text-shadow:0 0 8px var(--conhecimento);
+  transition:all 0.2s;
+  -webkit-tap-highlight-color:transparent;
+}
+.roll-btn:active{background:rgba(255,153,0,0.25);transform:scale(0.97);}
+.expr-row{display:flex;gap:6px;}
+.expr-inp{
+  flex:1;padding:9px 12px;
+  background:rgba(0,0,0,0.6);border:1px solid var(--border);
+  color:var(--text);font-family:'Share Tech Mono';font-size:0.8rem;
+  border-radius:var(--radius);
+}
+.expr-inp:focus{outline:none;border-color:var(--border2);}
+.expr-inp::placeholder{color:var(--dim);}
+.expr-go{
+  padding:9px 14px;
+  background:rgba(255,255,255,0.04);border:1px solid var(--border2);
+  color:var(--text);cursor:pointer;font-family:'Share Tech Mono';font-size:0.8rem;
+  border-radius:var(--radius);transition:all 0.15s;
+}
+.expr-go:active{background:rgba(255,255,255,0.1);}
+
+/* LOG */
+.log-box{
+  background:rgba(0,0,0,0.7);border:1px solid var(--border);
+  border-radius:var(--radius);overflow:hidden;
+}
+.log-hdr{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:7px 12px;border-bottom:1px solid var(--border);
+}
+.log-hdr-txt{font-size:0.55rem;letter-spacing:2px;color:var(--dim);}
+.log-clr{
+  background:none;border:none;color:var(--dim);
+  font-size:0.6rem;cursor:pointer;padding:2px 8px;
+}
+.log-clr:active{color:var(--sangue-l);}
+#log-list{
+  height:130px;overflow-y:auto;padding:6px 10px;
+  scrollbar-width:none;
+}
+#log-list::-webkit-scrollbar{display:none;}
+.log-entry{
+  padding:2px 0;font-size:0.7rem;color:var(--dim);
+  border-bottom:1px solid rgba(255,255,255,0.02);
+  animation:fadeSlide 0.2s ease;
+}
+@keyframes fadeSlide{from{opacity:0;transform:translateX(-5px);}to{opacity:1;transform:none;}}
+.log-entry.crit{color:var(--conhecimento-l);}
+.log-entry.fail{color:var(--sangue-l);}
+.log-entry.heal{color:#44dd88;}
+.log-entry.info{color:#4488cc;}
+.log-entry.ritual{color:var(--energia-l);}
+.log-time{font-size:0.55rem;color:rgba(255,255,255,0.15);margin-right:6px;}
+
+/* ══════════════════════════════════════════
+   PAGE: RITUAIS + BIBLIOTECA
+══════════════════════════════════════════ */
+.tab-row{
+  display:flex;border-bottom:1px solid var(--border);
+  margin:-12px -12px 12px;overflow-x:auto;scrollbar-width:none;
+}
+.tab-row::-webkit-scrollbar{display:none;}
+.tpill{
+  flex-shrink:0;padding:10px 16px;
+  font-size:0.55rem;letter-spacing:2px;color:var(--dim);
+  background:none;border:none;border-bottom:2px solid transparent;
+  cursor:pointer;transition:all 0.2s;
+}
+.tpill.active{color:var(--text);border-bottom-color:var(--energia-l);}
+
+.elem-filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+.ef{
+  padding:4px 11px;border:1px solid;border-radius:20px;
+  font-size:0.55rem;letter-spacing:1px;background:none;cursor:pointer;
+  transition:all 0.15s;
+  -webkit-tap-highlight-color:transparent;
+}
+.ef:active{opacity:0.7;}
+
+/* RITUAL CARDS */
+.rit-list{display:flex;flex-direction:column;gap:8px;}
+.rit-card{
+  border:1px solid;border-radius:var(--radius);padding:14px;
+  position:relative;overflow:hidden;transition:all 0.2s;
+}
+.rit-card::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at top right,currentColor,transparent 65%);
+  opacity:0.05;pointer-events:none;
+}
+.rit-elem-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+.rit-badge{
+  font-size:0.48rem;padding:2px 7px;border:1px solid currentColor;
+  border-radius:20px;letter-spacing:1px;
+}
+.rit-circle{font-size:0.5rem;color:var(--dim);}
+.rit-name{
+  font-family:'Cinzel',serif;font-size:0.9rem;
+  color:var(--text);margin-bottom:3px;line-height:1.2;
+}
+.rit-cost{font-size:0.65rem;font-weight:bold;margin-bottom:6px;}
+.rit-desc{font-size:0.7rem;color:#bbbbd0;line-height:1.55;}
+.rit-actions{display:flex;gap:6px;margin-top:10px;}
+.rit-cast{
+  flex:1;padding:7px;font-size:0.55rem;letter-spacing:1px;
+  background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);
+  color:var(--text);cursor:pointer;border-radius:3px;
+  font-family:'Share Tech Mono';transition:all 0.15s;
+}
+.rit-cast:active{background:rgba(255,255,255,0.12);}
+.rit-del{
+  padding:7px 10px;font-size:0.55rem;
+  background:none;border:1px solid rgba(204,17,17,0.25);
+  color:rgba(255,51,51,0.5);cursor:pointer;border-radius:3px;
+}
+.rit-del:active{border-color:var(--sangue-l);color:var(--sangue-l);}
+
+/* LIB CARDS */
+.lib-list{display:flex;flex-direction:column;gap:6px;}
+.lib-card{
+  border:1px solid var(--border);border-radius:var(--radius);
+  padding:12px;position:relative;transition:all 0.2s;
+}
+.lib-card.learned::after{
+  content:'✓ APRENDIDO';
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  background:rgba(0,0,0,0.75);font-size:0.55rem;letter-spacing:2px;
+  color:#44dd88;border-radius:var(--radius);
+}
+.lib-learn-btn{
+  width:100%;margin-top:8px;padding:7px;
+  font-size:0.55rem;letter-spacing:1px;
+  background:rgba(136,0,255,0.1);border:1px solid rgba(136,0,255,0.35);
+  color:var(--energia-l);cursor:pointer;border-radius:3px;
+  font-family:'Share Tech Mono';transition:all 0.15s;
+}
+.lib-learn-btn:active{background:rgba(136,0,255,0.2);}
+
+/* ══════════════════════════════════════════
+   PAGE: INVENTÁRIO
+══════════════════════════════════════════ */
+.inv-weight{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:12px;
+  display:flex;align-items:center;gap:10px;
+  margin-bottom:10px;
+}
+.inv-wt-label{font-size:0.6rem;color:var(--dim);letter-spacing:1px;flex-shrink:0;}
+.inv-wt-bar{flex:1;height:6px;background:rgba(0,0,0,0.6);border-radius:3px;overflow:hidden;}
+.inv-wt-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--energia),var(--conhecimento-l));transition:width 0.4s;}
+.inv-wt-fill.over{background:linear-gradient(90deg,var(--sangue),var(--sangue-l));}
+.inv-wt-num{font-size:0.65rem;color:var(--dim);flex-shrink:0;}
+.inv-warn{font-size:0.6rem;color:var(--sangue-l);flex-shrink:0;}
+
+.cat-filters{display:flex;gap:5px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px;margin-bottom:10px;}
+.cat-filters::-webkit-scrollbar{display:none;}
+.cf{
+  flex-shrink:0;padding:4px 10px;border:1px solid var(--border);
+  border-radius:20px;font-size:0.55rem;color:var(--dim);
+  background:none;cursor:pointer;transition:all 0.15s;white-space:nowrap;
+}
+.cf.on{border-color:var(--border2);color:var(--text);}
+
+.inv-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.inv-item{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);
+  position:relative;transition:all 0.2s;
+  border-top:2px solid transparent;
+  overflow:hidden;
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+  display:flex;flex-direction:column;
+}
+.inv-item:active{transform:scale(0.96);opacity:0.9;}
+.inv-item-img{
+  width:100%;height:90px;overflow:hidden;flex-shrink:0;position:relative;
+}
+.inv-item-img img{width:100%;height:100%;object-fit:cover;display:block;}
+.inv-item-img-overlay{
+  position:absolute;inset:0;
+  background:linear-gradient(to bottom,transparent 50%,rgba(5,5,8,0.8));
+}
+.inv-item-body{padding:10px;flex:1;}
+.inv-item-cat{font-size:0.5rem;color:var(--dim);margin-bottom:4px;display:flex;justify-content:space-between;align-items:center;}
+.inv-item-name{font-size:0.82rem;font-weight:bold;line-height:1.3;margin-bottom:3px;color:var(--text);}
+.inv-item-desc{font-size:0.6rem;color:var(--dim);line-height:1.4;}
+.inv-item-del{
+  position:absolute;top:5px;right:6px;
+  background:none;border:none;color:rgba(255,255,255,0.12);
+  cursor:pointer;font-size:0.7rem;padding:2px;
+}
+.inv-item-del:active{color:var(--sangue-l);}
+
+/* ══════════════════════════════════════════
+   PAGE: WIKI
+══════════════════════════════════════════ */
+.wiki-list{display:flex;flex-direction:column;gap:6px;}
+.wiki-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);overflow:hidden;
+}
+.wiki-card-hdr{
+  display:flex;align-items:center;gap:10px;padding:12px;
+  cursor:pointer;-webkit-tap-highlight-color:transparent;
+}
+.wiki-card-icon{font-size:1.3rem;flex-shrink:0;}
+.wiki-card-title{flex:1;font-family:'Cinzel',serif;font-size:0.8rem;}
+.wiki-card-arrow{color:var(--dim);font-size:0.8rem;transition:transform 0.2s;}
+.wiki-card.open .wiki-card-arrow{transform:rotate(90deg);}
+.wiki-card-body{
+  display:none;padding:0 12px 12px;
+  font-size:0.72rem;color:#bbbbd0;line-height:1.6;
+}
+.wiki-card.open .wiki-card-body{display:block;}
+.wiki-elem-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;}
+.wiki-elem{
+  padding:4px 10px;border:1px solid;border-radius:3px;
+  font-size:0.55rem;letter-spacing:1px;cursor:pointer;
+}
+
+/* ══════════════════════════════════════════
+   PAGE: PERÍCIAS
+══════════════════════════════════════════ */
+.skill-list{display:flex;flex-direction:column;gap:6px;}
+.skill-row{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-left:3px solid var(--energia-l);
+  border-radius:var(--radius);
+  display:flex;align-items:center;gap:8px;
+  padding:11px 12px;
+  cursor:pointer;
+  transition:all 0.15s;
+  -webkit-tap-highlight-color:transparent;
+  position:relative;overflow:hidden;
+}
+.skill-row::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(90deg,rgba(187,68,255,0.04),transparent 40%);
+  pointer-events:none;
+}
+.skill-row:active{transform:scale(0.98);background:rgba(20,20,36,0.98);}
+.skill-name{flex:1;font-size:0.82rem;}
+.skill-badges{display:flex;gap:4px;align-items:center;}
+.skill-attr-b{
+  font-size:0.48rem;padding:2px 5px;border:1px solid rgba(255,255,255,0.12);
+  border-radius:20px;color:var(--dim);
+}
+.skill-mod{
+  font-family:'Cinzel',serif;font-size:0.85rem;
+  color:var(--energia-l);min-width:26px;text-align:right;
+}
+.skill-last{font-size:0.55rem;color:var(--dim);min-width:30px;text-align:right;}
+.skill-del-btn{
+  background:none;border:none;color:rgba(255,255,255,0.12);
+  cursor:pointer;font-size:0.75rem;padding:2px 4px;
+}
+.skill-del-btn:active{color:var(--sangue-l);}
+
+/* ══════════════════════════════════════════
+   FLOATING ADD BUTTON
+══════════════════════════════════════════ */
+.fab{
+  position:fixed;bottom:calc(76px + var(--safe-bottom));right:16px;
+  width:52px;height:52px;border-radius:50%;
+  background:linear-gradient(135deg,#ff2222,#880000);
+  border:1px solid rgba(255,100,100,0.3);
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.5rem;color:#fff;
+  box-shadow:0 4px 20px rgba(204,17,17,0.45),0 2px 8px rgba(0,0,0,0.6);
+  z-index:40;transition:all 0.2s;
+  -webkit-tap-highlight-color:transparent;
+}
+.fab:active{transform:scale(0.88);}
+.fab.hidden{opacity:0;pointer-events:none;transform:scale(0.7);}
+
+/* ══════════════════════════════════════════
+   MODAIS
+══════════════════════════════════════════ */
+.modal-bg{
+  position:fixed;inset:0;background:rgba(0,0,0,0.88);
+  display:none;align-items:flex-end;justify-content:center;
+  z-index:200;
+}
+.modal-bg.open{display:flex;}
+.modal-sheet{
+  background:var(--bg2);
+  border:1px solid var(--border2);
+  border-top:2px solid var(--m-c,var(--sangue));
+  border-radius:16px 16px 0 0;
+  padding:20px 16px calc(20px + var(--safe-bottom));
+  width:100%;max-width:520px;
+  max-height:92vh;overflow-y:auto;
+  scrollbar-width:none;
+  animation:sheetUp 0.3s cubic-bezier(.2,.8,.4,1);
+}
+.modal-sheet::-webkit-scrollbar{display:none;}
+@keyframes sheetUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
+.modal-handle{
+  width:36px;height:4px;border-radius:2px;
+  background:rgba(255,255,255,0.15);
+  margin:0 auto 16px;
+}
+.modal-title{
+  font-family:'Cinzel',serif;font-size:1rem;
+  color:var(--m-c,var(--sangue-l));
+  margin-bottom:16px;
+}
+label{
+  display:block;font-size:0.52rem;letter-spacing:2px;
+  color:var(--dim);margin:10px 0 4px;
+}
+input[type=text],input[type=number],select,textarea{
+  width:100%;background:rgba(0,0,0,0.7);
+  border:1px solid var(--border2);color:var(--text);
+  padding:11px 12px;font-family:'Share Tech Mono';font-size:0.85rem;
+  border-radius:var(--radius);margin-bottom:2px;
+  -webkit-appearance:none;
+}
+input:focus,select:focus,textarea:focus{outline:none;border-color:rgba(255,255,255,0.3);}
+select option{background:#0a0a14;}
+textarea{min-height:70px;resize:vertical;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.mbtns{display:flex;flex-direction:column;gap:6px;margin-top:14px;}
+.mbtn{
+  padding:13px;cursor:pointer;
+  font-family:'Cinzel',serif;font-size:0.7rem;letter-spacing:2px;
+  border-radius:var(--radius);transition:all 0.2s;
+  -webkit-tap-highlight-color:transparent;
+}
+.mbtn-p{
+  background:linear-gradient(135deg,var(--m-c,var(--sangue)),rgba(0,0,0,0));
+  border:1px solid var(--m-c,var(--sangue-l));color:#fff;
+}
+.mbtn-p:active{opacity:0.8;}
+.mbtn-s{background:none;border:1px solid var(--border2);color:var(--dim);}
+.mbtn-s:active{border-color:var(--border2);color:var(--text);}
+
+/* Ritual preview */
+.rit-preview-box{
+  background:rgba(0,0,0,0.5);border:1px solid var(--border);
+  border-radius:var(--radius);padding:10px;margin-top:6px;
+  font-size:0.7rem;color:#aaa;line-height:1.55;display:none;
+}
+
+/* ══════════════════════════════════════════
+   BACK BUTTON (sub-pages)
+══════════════════════════════════════════ */
+.back-bar{
+  display:flex;align-items:center;gap:8px;
+  padding:10px 0 14px;
+  font-size:0.55rem;letter-spacing:2px;color:var(--dim);
+  cursor:pointer;-webkit-tap-highlight-color:transparent;
+}
+.back-bar:active{color:var(--text);}
+.back-bar::before{content:'←';font-size:1rem;}
+.ptcl{
+  position:fixed;pointer-events:none;z-index:900;
+  font-weight:bold;animation:ptclAnim 0.9s ease-out forwards;
+}
+@keyframes ptclAnim{
+  0%{opacity:1;transform:translateY(0) scale(1) rotate(var(--r,0deg));}
+  100%{opacity:0;transform:translateY(-70px) scale(0.6) rotate(calc(var(--r,0deg) + 180deg));}
+}
+
+/* ══════════════════════════════════════════
+   TOAST
+══════════════════════════════════════════ */
+#toast{
+  position:fixed;bottom:calc(80px + var(--safe-bottom));left:50%;
+  transform:translateX(-50%) translateY(8px);
+  background:rgba(10,10,20,0.96);border:1px solid var(--border2);
+  padding:8px 20px;border-radius:30px;font-size:0.7rem;letter-spacing:1px;
+  z-index:500;opacity:0;transition:all 0.3s;pointer-events:none;white-space:nowrap;
+}
+#toast.on{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* ══════════════════════════════════════════
+   EMPTY STATES
+══════════════════════════════════════════ */
+.empty-state{
+  text-align:center;padding:36px 20px;
+  color:var(--dim);font-size:0.75rem;
+}
+.empty-icon{font-size:2.5rem;margin-bottom:8px;opacity:0.25;display:block;}
+
+/* ══════════════════════════════════════════
+   ELEMENT SYMBOLS (SVG inline)
+══════════════════════════════════════════ */
+/* Drawn as SVG paths inspired by the uploaded symbols */
+</style>
 </head>
 <body>
+<canvas id="c"></canvas>
 
-    <header class="app-header">
-        <h1 class="app-title">ORDEM PARANORMAL</h1>
-        <div id="charNameDisplay" style="font-size: 0.8rem; color: #888;">Nenhum Agente Selecionado</div>
-    </header>
+<div id="app">
+  <!-- ▲ TOP BAR -->
+  <div id="topbar">
+    <div id="logo-btn" onclick="openModal('modal-char')">
+      <div id="logo-txt">ORDEM PARANORMAL</div>
+      <div id="logo-sub">V1.0 · CAOS EDITION</div>
+    </div>
+    <div id="char-tabs"></div>
+    <button id="add-char-btn" onclick="openModal('modal-new-char')" title="Novo personagem">＋</button>
+  </div>
 
-    <div id="tab-char" class="tab-content">
-        <div class="sheet-card">
-            <span class="field-label">Nome do Agente</span>
-            <input type="text" id="c-name" class="field-input" onchange="sync()">
-            
-            <div class="grid-2">
-                <div>
-                    <span class="field-label">Origem</span>
-                    <input type="text" id="c-origin" class="field-input" onchange="sync()">
-                </div>
-                <div>
-                    <span class="field-label">Classe</span>
-                    <input type="text" id="c-class" class="field-input" onchange="sync()">
-                </div>
-            </div>
+  <!-- ▼ CONTENT -->
+  <div id="content">
 
-            <div class="grid-2">
-                <div>
-                    <span class="field-label">Patente</span>
-                    <select id="c-rank" class="field-input" onchange="sync()">
-                        <option>Recruta</option><option>Operador</option><option>Agente Especial</option>
-                        <option>Oficial de Operações</option><option>Agente de Elite</option>
-                    </select>
-                </div>
-                <div>
-                    <span class="field-label">NEX %</span>
-                    <input type="number" id="c-nex" class="field-input" onchange="sync()">
-                </div>
-            </div>
+    <!-- PAGE: FICHA -->
+    <div id="page-ficha" class="page active" style="display:block;">
+      <!-- BANNER -->
+      <div class="char-banner" id="char-banner">
+        <div class="char-banner-bg" id="char-banner-bg"></div>
+        <div class="char-banner-inner">
+          <div class="char-photo-wrap" id="photo-wrap" onclick="document.getElementById('photo-input').click()">
+            <div class="photo-ph" id="photo-ph"><span>📷</span><small>FOTO</small></div>
+            <img id="char-photo" src="" alt="">
+          </div>
+          <input type="file" id="photo-input" accept="image/*" onchange="handlePhoto(event)">
+          <div class="char-details">
+            <div class="char-name-big" id="char-name-disp" onclick="openModal('modal-char')">— AGENTE —</div>
+            <div class="char-badges" id="char-badges"></div>
+          </div>
         </div>
+        <div class="conds" id="conds-row"></div>
+        <div class="elem-symbol-wrap" id="elem-symbol-banner"></div>
+      </div>
 
-        <div class="sheet-card">
-            <span class="field-label">Perícias Treinadas</span>
-            <div class="skill-list" id="skillList">
-                </div>
+      <!-- STATUS BARS -->
+      <div class="sec-title" style="--sec-c:var(--sangue)">STATUS VITAL</div>
+      <div class="bars-wrap">
+        <!-- HP -->
+        <div class="bar-block" id="bar-hp">
+          <div class="bar-top">
+            <span class="bar-label">PONTOS DE VIDA</span>
+            <span class="bar-nums" id="hp-n" style="--bc:var(--hp-color)" onclick="quickStat('hp')">20/20</span>
+          </div>
+          <div class="bar-track" onclick="quickStat('hp')"><div class="bar-fill fill-hp" id="hp-f" style="width:100%"></div></div>
+          <div class="bar-btns">
+            <button class="bb neg" onclick="delta('hp',-5)">−5</button>
+            <button class="bb neg" onclick="delta('hp',-1)">−1</button>
+            <button class="bb pos" onclick="delta('hp', 1)">+1</button>
+            <button class="bb pos" onclick="delta('hp', 5)">+5</button>
+            <button class="bb sp"  onclick="quickStat('hp')">±</button>
+          </div>
         </div>
+        <!-- SAN -->
+        <div class="bar-block" id="bar-san">
+          <div class="bar-top">
+            <span class="bar-label">SANIDADE</span>
+            <span class="bar-nums" id="san-n" style="--bc:var(--san-color)" onclick="quickStat('san')">20/20</span>
+          </div>
+          <div class="bar-track" onclick="quickStat('san')"><div class="bar-fill fill-san" id="san-f" style="width:100%"></div></div>
+          <div class="bar-btns">
+            <button class="bb neg" onclick="delta('san',-3)">−3</button>
+            <button class="bb neg" onclick="delta('san',-1)">−1</button>
+            <button class="bb pos" onclick="delta('san', 1)">+1</button>
+            <button class="bb pos" onclick="delta('san', 3)">+3</button>
+            <button class="bb sp"  onclick="quickStat('san')">±</button>
+          </div>
+        </div>
+        <!-- PE -->
+        <div class="bar-block" id="bar-pe">
+          <div class="bar-top">
+            <span class="bar-label">ESFORÇO</span>
+            <span class="bar-nums" id="pe-n" style="--bc:var(--pe-color)" onclick="quickStat('pe')">5/5</span>
+          </div>
+          <div class="bar-track" onclick="quickStat('pe')"><div class="bar-fill fill-pe" id="pe-f" style="width:100%"></div></div>
+          <div class="bar-btns">
+            <button class="bb neg" onclick="delta('pe',-2)">−2</button>
+            <button class="bb neg" onclick="delta('pe',-1)">−1</button>
+            <button class="bb pos" onclick="delta('pe', 1)">+1</button>
+            <button class="bb pos" onclick="delta('pe', 2)">+2</button>
+            <button class="bb sp"  onclick="quickStat('pe')">±</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SANITY SYSTEM -->
+      <div class="sec-title" style="--sec-c:var(--san-color)">SISTEMA DE SANIDADE</div>
+      <div class="sanity-panel">
+        <div class="san-inner"></div>
+        <div class="san-title">ESTABILIDADE MENTAL</div>
+        <div class="san-level">
+          <span id="san-level-name">Estável</span>
+          <span id="san-level-pct" style="color:var(--dim);font-size:0.7rem;"></span>
+        </div>
+        <div class="san-desc" id="san-desc">O agente está psicologicamente estável. A Membrana permanece distante.</div>
+        <div class="san-orbs" id="san-orbs"></div>
+      </div>
+
+      <!-- ATRIBUTOS -->
+      <div class="sec-title" style="--sec-c:var(--conhecimento)">ATRIBUTOS · toque para testar</div>
+      <div class="penta-wrap">
+        <div class="penta-canvas-wrap">
+          <canvas id="penta-canvas" width="220" height="220"></canvas>
+          <div class="penta-nodes" id="penta-nodes"></div>
+        </div>
+      </div>
+
+      <!-- PERÍCIAS QUICK -->
+      <div class="sec-title" style="--sec-c:var(--energia-l)">PERÍCIAS <span style="font-size:0.5rem;margin-left:4px;cursor:pointer;color:var(--dim)" onclick="goPage('page-pericias')">(ver todas →)</span></div>
+      <div class="skill-list" id="skills-mini"></div>
+      <button class="mbtn mbtn-s" style="margin-top:8px;font-size:0.65rem;letter-spacing:2px;padding:10px;width:100%;cursor:pointer" onclick="openModal('modal-skill')">＋ PERÍCIA</button>
     </div>
 
-    <div id="tab-rituals" class="tab-content hidden">
-        <div class="sheet-card">
-            <h3 style="font-family:'Cinzel'; margin-bottom:15px;">Grimório de Rituais</h3>
-            <div id="ritualsContainer">
-                </div>
+    <!-- PAGE: DADOS -->
+    <div id="page-dados" class="page">
+      <div class="dice-page">
+        <div class="dice-arena" id="dice-arena" onclick="rollSelected()">
+          <div class="arena-bg-symbol" id="arena-bg">⚄</div>
+          <div class="arena-hist" id="arena-hist"></div>
+          <div class="arena-die" id="arena-die">⚄</div>
+          <div class="arena-result" id="arena-result">—</div>
+          <div class="arena-hint">TOQUE PARA ROLAR</div>
         </div>
+        <div class="die-grid" id="die-grid">
+          <button class="die-btn" data-s="3"   onclick="selDie(3)">d3</button>
+          <button class="die-btn" data-s="4"   onclick="selDie(4)">d4</button>
+          <button class="die-btn" data-s="6"   onclick="selDie(6)">d6</button>
+          <button class="die-btn" data-s="8"   onclick="selDie(8)">d8</button>
+          <button class="die-btn" data-s="10"  onclick="selDie(10)">d10</button>
+          <button class="die-btn" data-s="12"  onclick="selDie(12)">d12</button>
+          <button class="die-btn sel" data-s="20" onclick="selDie(20)">d20</button>
+          <button class="die-btn" data-s="100" onclick="selDie(100)">d%</button>
+        </div>
+        <div class="roll-row">
+          <input class="qty-input" type="number" id="roll-qty" value="1" min="1" max="20">
+          <button class="roll-btn" onclick="rollSelected()">⚡ ROLAR</button>
+        </div>
+        <div class="expr-row">
+          <input class="expr-inp" type="text" id="expr-inp" placeholder="2d6+3 · 1d20-2 · 4d8...">
+          <button class="expr-go" onclick="rollExpr()">EXPR</button>
+        </div>
+        <div class="log-box">
+          <div class="log-hdr">
+            <span class="log-hdr-txt">REGISTRO</span>
+            <button class="log-clr" onclick="clearLog()">LIMPAR</button>
+          </div>
+          <div id="log-list"></div>
+        </div>
+      </div>
     </div>
 
-    <nav class="nav-bar">
-        <button class="nav-btn active" onclick="showTab('char')">Agente</button>
-        <button class="nav-btn" onclick="showTab('rituals')">Rituais</button>
-        <button class="nav-btn" onclick="exportData()">Backup</button>
-    </nav>
+    <!-- PAGE: RITUAIS -->
+    <div id="page-rituais" class="page">
+      <div class="tab-row">
+        <button class="tpill active" onclick="switchRitTab(0,this)">APRENDIDOS</button>
+        <button class="tpill" onclick="switchRitTab(1,this)">BIBLIOTECA</button>
+      </div>
+      <!-- APRENDIDOS -->
+      <div id="rit-mine">
+        <div class="rit-list" id="rit-my-list"></div>
+        <button class="mbtn mbtn-s" style="margin-top:10px;width:100%;padding:10px;font-size:0.65rem;letter-spacing:2px;cursor:pointer" onclick="openModal('modal-ritual')">＋ RITUAL CUSTOMIZADO</button>
+      </div>
+      <!-- BIBLIOTECA -->
+      <div id="rit-lib" style="display:none">
+        <div class="elem-filters" id="lib-elem-filters">
+          <button class="ef on" style="border-color:var(--sangue);color:var(--sangue-l);"      data-e="SANGUE"       onclick="toggleLibElem(this)">SANGUE</button>
+          <button class="ef on" style="border-color:var(--energia);color:var(--energia-l);"    data-e="ENERGIA"      onclick="toggleLibElem(this)">ENERGIA</button>
+          <button class="ef on" style="border-color:var(--morte);color:var(--morte-l);"        data-e="MORTE"        onclick="toggleLibElem(this)">MORTE</button>
+          <button class="ef on" style="border-color:var(--conhecimento);color:var(--conhecimento-l);" data-e="CONHECIMENTO" onclick="toggleLibElem(this)">CONHECIMENTO</button>
+          <button class="ef on" style="border-color:var(--medo);color:var(--medo-l);"          data-e="MEDO"         onclick="toggleLibElem(this)">MEDO</button>
+        </div>
+        <div class="lib-list" id="lib-list"></div>
+      </div>
+    </div>
 
-    <script>
-        // 1. DATABASE DE RITUAIS (Adicione quantos quiser aqui)
-        const RITUALS_DATA = [
-            { 
-                name: "Cicatrização", 
-                element: "sangue", 
-                circle: "1º Círculo", 
-                exec: "Padrão", 
-                range: "Toque",
-                desc: "Você acelera a cura natural do alvo. Cura 2d8+2 PV.",
-                wiki: "https://ordemparanormal.fandom.com/pt-br/wiki/Cicatriza%C3%A7%C3%A3o"
-            },
-            { 
-                name: "Decadência", 
-                element: "morte", 
-                circle: "1º Círculo", 
-                exec: "Padrão", 
-                range: "Toque",
-                desc: "A fúria do tempo consome o alvo. Causa 2d8 de dano de Morte.",
-                wiki: "https://ordemparanormal.fandom.com/pt-br/wiki/Decad%C3%AAncia"
-            }
-{ 
-                name: "Transceder", 
-                element: "conhecimento", 
-                circle: "???", 
-                exec: "Padrão", 
-                range: "Toque",
-                desc: "Ao entrar em comunhão com o Outro Lado e suas entidades, seu usuário é fortalecido dependendo da exposição dele ao paranormal, sendo capaz de aprender um ritual no processo.",
-                wiki: ""
-            }
-        ];
+    <!-- PAGE: INVENTÁRIO -->
+    <div id="page-inv" class="page">
+      <div class="inv-weight">
+        <span class="inv-wt-label">CARGA</span>
+        <div class="inv-wt-bar"><div class="inv-wt-fill" id="wt-fill" style="width:0%"></div></div>
+        <span class="inv-wt-num"><span id="wt-cur">0</span>/15</span>
+        <span class="inv-warn" id="wt-warn" style="display:none">⚠ SOBRECARGA</span>
+      </div>
+      <div class="cat-filters" id="cat-filters">
+        <button class="cf on" data-c="all"      onclick="catFilt(this)">TUDO</button>
+        <button class="cf"    data-c="arma"     onclick="catFilt(this)">⚔️ ARMAS</button>
+        <button class="cf"    data-c="protecao" onclick="catFilt(this)">🛡️ PROTEÇÃO</button>
+        <button class="cf"    data-c="consumivel" onclick="catFilt(this)">🧪 CONSUMÍVEIS</button>
+        <button class="cf"    data-c="ocultismo" onclick="catFilt(this)">🔮 OCULTISMO</button>
+        <button class="cf"    data-c="geral"    onclick="catFilt(this)">📦 GERAL</button>
+      </div>
+      <div class="inv-grid" id="inv-grid"></div>
+    </div>
 
-        // 2. LISTA DE PERÍCIAS PADRÃO
-        const SKILLS_LIST = ["Acrobacia", "Adestramento", "Artes", "Atletismo", "Atualidades", "Ciências", "Crime", "Diplomacia", "Enganação", "Fortitude", "Furtividade", "Iniciativa", "Intimidação", "Intuição", "Investigação", "Luta", "Medicina", "Ocultismo", "Percepção", "Pilotagem", "Pontaria", "Reflexos", "Religião", "Sobrevivência", "Tática", "Tecnologia", "Vontade"];
+    <!-- PAGE: WIKI -->
+    <div id="page-wiki" class="page">
+      <div class="wiki-list" id="wiki-list"></div>
+    </div>
 
-        let char = JSON.parse(localStorage.getItem('v81_char')) || {
-            name: "Novo Agente", origin: "", class: "", rank: "Recruta", nex: 5,
-            skills: {}, rituals: []
-        };
+    <!-- PAGE: PERÍCIAS (full) -->
+    <div id="page-pericias" class="page">
+      <div class="back-bar" onclick="goPage('page-ficha',document.querySelector('.bnav-btn'),true)">VOLTAR À FICHA</div>
+      <div class="skill-list" id="skills-full"></div>
+      <button class="mbtn mbtn-s" style="margin-top:10px;width:100%;padding:10px;font-size:0.65rem;letter-spacing:2px;cursor:pointer" onclick="openModal('modal-skill')">＋ ADICIONAR PERÍCIA</button>
+    </div>
 
-        function init() {
-            renderSkills();
-            renderRituals();
-            loadCharFields();
-        }
+  </div><!-- /content -->
 
-        function renderSkills() {
-            const container = document.getElementById('skillList');
-            container.innerHTML = SKILLS_LIST.map(s => `
-                <div class="skill-item">
-                    <span>${s}</span>
-                    <input type="number" value="${char.skills[s] || 0}" 
-                           style="width:35px; background:none; border:none; color:var(--conhecimento); text-align:right;"
-                           onchange="updateSkill('${s}', this.value)">
-                </div>
-            `).join('');
-        }
+  <!-- ▼ BOTTOM NAV -->
+  <div id="bottomnav">
+    <button class="bnav-btn active" style="--nav-c:var(--sangue-l)" onclick="goPage('page-ficha',this)">
+      <span class="icon">⚔️</span><span>FICHA</span>
+    </button>
+    <button class="bnav-btn" style="--nav-c:var(--conhecimento-l)" onclick="goPage('page-dados',this)">
+      <span class="icon">🎲</span><span>DADOS</span>
+    </button>
+    <button class="bnav-btn" style="--nav-c:var(--energia-l)" onclick="goPage('page-rituais',this)">
+      <span class="icon">✦</span><span>RITUAIS</span>
+    </button>
+    <button class="bnav-btn" style="--nav-c:var(--morte-l)" onclick="goPage('page-inv',this)">
+      <span class="icon">🎒</span><span>ITENS</span>
+    </button>
+    <button class="bnav-btn" style="--nav-c:#66aaff" onclick="goPage('page-wiki',this)">
+      <span class="icon">📖</span><span>WIKI</span>
+    </button>
+  </div>
+</div>
 
-        function renderRituals() {
-            const container = document.getElementById('ritualsContainer');
-            container.innerHTML = RITUALS_DATA.map(r => `
-                <div class="ritual-item" style="border-left-color: var(--${r.element})">
-                    <span class="ritual-name" style="color: var(--${r.element})">${r.name}</span>
-                    <div class="ritual-meta">${r.circle} | Execução: ${r.exec} | Alcance: ${r.range}</div>
-                    <p style="font-size:0.75rem; color:#aaa; margin: 8px 0;">${r.desc}</p>
-                    <a href="${r.wiki}" target="_blank" class="wiki-link">📖 Ver na Wiki</a>
-                </div>
-            `).join('');
-        }
+<!-- FAB -->
+<button class="fab" id="fab" onclick="onFab()">＋</button>
 
-        function loadCharFields() {
-            document.getElementById('c-name').value = char.name;
-            document.getElementById('c-origin').value = char.origin;
-            document.getElementById('c-class').value = char.class;
-            document.getElementById('c-rank').value = char.rank;
-            document.getElementById('c-nex').value = char.nex;
-            document.getElementById('charNameDisplay').textContent = char.name;
-        }
+<!-- TOAST -->
+<div id="toast"></div>
 
-        function sync() {
-            char.name = document.getElementById('c-name').value;
-            char.origin = document.getElementById('c-origin').value;
-            char.class = document.getElementById('c-class').value;
-            char.rank = document.getElementById('c-rank').value;
-            char.nex = document.getElementById('c-nex').value;
-            document.getElementById('charNameDisplay').textContent = char.name;
-            save();
-        }
+<!-- ═══════════════ MODAIS ═══════════════ -->
 
-        function updateSkill(name, val) {
-            char.skills[name] = parseInt(val);
-            save();
-        }
+<!-- CHAR MODAL -->
+<div class="modal-bg" id="modal-char">
+  <div class="modal-sheet" style="--m-c:var(--sangue-l)">
+    <div class="modal-handle"></div>
+    <div class="modal-title">✦ FICHA DO AGENTE</div>
+    <label>NOME</label><input type="text" id="mc-name" placeholder="Nome do personagem...">
+    <div class="two-col">
+      <div><label>CLASSE</label><input type="text" id="mc-class" placeholder="Ocultista..."></div>
+      <div><label>ELEMENTO</label>
+        <select id="mc-elem">
+          <option value="">— nenhum —</option>
+          <option value="SANGUE">SANGUE</option>
+          <option value="ENERGIA">ENERGIA</option>
+          <option value="MORTE">MORTE</option>
+          <option value="CONHECIMENTO">CONHECIMENTO</option>
+          <option value="MEDO">MEDO</option>
+        </select>
+      </div>
+    </div>
+    <div class="two-col">
+      <div><label>NÍVEL</label><input type="number" id="mc-lv" placeholder="1" min="1" max="20"></div>
+      <div><label>NEX (%)</label><input type="number" id="mc-nex" placeholder="5" min="5" max="99"></div>
+    </div>
+    <div class="two-col">
+      <div><label>PV MÁX</label><input type="number" id="mc-hpmax" placeholder="20"></div>
+      <div><label>SAN MÁX</label><input type="number" id="mc-sanmax" placeholder="20"></div>
+    </div>
+    <div class="two-col">
+      <div><label>PE MÁX</label><input type="number" id="mc-pemax" placeholder="5"></div>
+      <div><label>DEFESA</label><input type="number" id="mc-def" placeholder="12"></div>
+    </div>
+    <label>ORGANIZAÇÃO</label><input type="text" id="mc-org" placeholder="Ordem Paranormal...">
+    <label>ORIGEM</label><input type="text" id="mc-origin" placeholder="Acadêmico, Executor...">
+    <div class="mbtns">
+      <button class="mbtn mbtn-p" onclick="saveChar()">SALVAR</button>
+      <button class="mbtn mbtn-s" onclick="closeModal('modal-char')">CANCELAR</button>
+    </div>
+  </div>
+</div>
 
-        function save() { localStorage.setItem('v81_char', JSON.stringify(char)); }
+<!-- NEW CHAR -->
+<div class="modal-bg" id="modal-new-char">
+  <div class="modal-sheet" style="--m-c:var(--energia-l)">
+    <div class="modal-handle"></div>
+    <div class="modal-title">＋ NOVO AGENTE</div>
+    <label>NOME DO PERSONAGEM</label>
+    <input type="text" id="nc-name" placeholder="Nome...">
+    <div class="mbtns">
+      <button class="mbtn mbtn-p" onclick="createChar()">CRIAR</button>
+      <button class="mbtn mbtn-s" onclick="closeModal('modal-new-char')">CANCELAR</button>
+    </div>
+  </div>
+</div>
 
-        function showTab(tab) {
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById('tab-' + tab).classList.remove('hidden');
-            event.currentTarget.classList.add('active');
-        }
+<!-- STAT EDIT -->
+<div class="modal-bg" id="modal-stat">
+  <div class="modal-sheet" style="--m-c:var(--hp-color)">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modal-stat-title">EDITAR STAT</div>
+    <input type="hidden" id="mstat-key">
+    <label>VALOR (+5 adiciona, -3 remove, 15 define)</label>
+    <input type="text" id="mstat-val" placeholder="+5 · -3 · 15...">
+    <label>NOVO MÁXIMO (opcional)</label>
+    <input type="number" id="mstat-max" placeholder="Deixe vazio para não alterar">
+    <div class="mbtns">
+      <button class="mbtn mbtn-p" onclick="applyStatEdit()">APLICAR</button>
+      <button class="mbtn mbtn-s" onclick="closeModal('modal-stat')">CANCELAR</button>
+    </div>
+  </div>
+</div>
 
-        function exportData() {
-            const data = btoa(JSON.stringify(char));
-            prompt("Copie seu código de backup:", data);
-        }
+<!-- SKILL -->
+<div class="modal-bg" id="modal-skill">
+  <div class="modal-sheet" style="--m-c:var(--energia-l)">
+    <div class="modal-handle"></div>
+    <div class="modal-title">＋ PERÍCIA</div>
+    <label>NOME</label><input type="text" id="sk-name" placeholder="Pontaria, Ocultismo...">
+    <div class="two-col">
+      <div><label>ATRIBUTO</label>
+        <select id="sk-attr">
+          <option value="for">FORÇA</option>
+          <option value="agi">AGILIDADE</option>
+          <option value="int">INTELECTO</option>
+          <option value="vig">VIGOR</option>
+          <option value="pre">PRESENÇA</option>
+        </select>
+      </div>
+      <div><label>TREINAMENTO</label>
+        <select id="sk-train">
+          <option value="0">Nenhum</option>
+          <option value="1">Treinado +5</option>
+          <option value="2">Veterano +10</option>
+          <option value="3">Expert +15</option>
+        </select>
+      </div>
+    </div>
+    <label>BÔNUS EXTRA</label><input type="number" id="sk-mod" placeholder="0">
+    <div class="mbtns">
+      <button class="mbtn mbtn-p" onclick="addSkill()">ADICIONAR</button>
+      <button class="mbtn mbtn-s" onclick="closeModal('modal-skill')">CANCELAR</button>
+    </div>
+  </div>
+</div>
 
-        init();
-    </script>
+<!-- ITEM -->
+<div class="modal-bg" id="modal-item">
+  <div class="modal-sheet" style="--m-c:var(--conhecimento-l)">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modal-item-title">＋ ITEM</div>
+    <input type="hidden" id="it-edit-idx" value="-1">
+
+    <!-- Foto do item -->
+    <div id="it-photo-wrap" onclick="document.getElementById('it-photo-input').click()" style="
+      width:100%;height:120px;border:2px dashed rgba(255,187,0,0.3);border-radius:var(--radius);
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      cursor:pointer;overflow:hidden;position:relative;margin-bottom:8px;background:rgba(0,0,0,0.4);
+      transition:border-color 0.2s;">
+      <div id="it-photo-ph" style="display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--dim);font-size:0.65rem;letter-spacing:1px;">
+        <span style="font-size:1.8rem">📷</span>FOTO DO ITEM (opcional)
+      </div>
+      <img id="it-photo-preview" src="" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">
+      <button id="it-photo-clear" onclick="clearItemPhoto(event)" style="
+        display:none;position:absolute;top:6px;right:6px;
+        background:rgba(0,0,0,0.8);border:1px solid rgba(255,255,255,0.2);
+        color:#fff;font-size:0.6rem;padding:3px 7px;border-radius:3px;cursor:pointer;z-index:2;">✕</button>
+    </div>
+    <input type="file" id="it-photo-input" accept="image/*" onchange="handleItemPhoto(event)" style="display:none;">
+
+    <label>NOME</label><input type="text" id="it-name" placeholder="Nome do item...">
+    <div class="two-col">
+      <div><label>CATEGORIA</label>
+        <select id="it-cat">
+          <option value="geral">📦 Geral</option>
+          <option value="arma">⚔️ Arma</option>
+          <option value="protecao">🛡️ Proteção</option>
+          <option value="consumivel">🧪 Consumível</option>
+          <option value="ocultismo">🔮 Ocultismo</option>
+        </select>
+      </div>
+      <div><label>ESPAÇOS</label><input type="number" id="it-wt" placeholder="1" min="0"></div>
+    </div>
+    <label>DESCRIÇÃO / EFEITO</label>
+    <textarea id="it-desc" placeholder="Dano, bônus, propriedades especiais, história do item..."></textarea>
+    <div class="mbtns">
+      <button class="mbtn mbtn-p" onclick="saveItem()">GUARDAR</button>
+      <button class="mbtn mbtn-s" onclick="closeModal('modal-item')">CANCELAR</button>
+    </div>
+  </div>
+</div>
+
+<!-- ITEM DETAIL VIEW -->
+<div class="modal-bg" id="modal-item-detail">
+  <div class="modal-sheet" style="--m-c:var(--conhecimento-l)">
+    <div class="modal-handle"></div>
+    <div id="idet-photo-wrap" style="width:100%;height:180px;border-radius:var(--radius);overflow:hidden;margin-bottom:14px;display:none;position:relative;">
+      <img id="idet-photo" src="" style="width:100%;height:100%;object-fit:cover;">
+      <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.7),transparent 50%);"></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+      <div>
+        <div id="idet-cat" style="font-size:0.5rem;letter-spacing:2px;color:var(--dim);margin-bottom:3px;"></div>
+        <div id="idet-name" style="font-family:'Cinzel',serif;font-size:1.2rem;color:var(--text);line-height:1.2;"></div>
+      </div>
+      <div id="idet-wt" style="font-family:'Cinzel',serif;font-size:1.1rem;color:var(--conhecimento-l);text-align:right;flex-shrink:0;margin-left:10px;"></div>
+    </div>
+    <div id="idet-desc" style="font-size:0.75rem;color:#bbbbd0;line-height:1.65;margin-bottom:16px;"></div>
+    <input type="hidden" id="idet-idx">
+    <div class="mbtns">
+      <button class="mbtn mbtn-p" style="background:linear-gradient(135deg,rgba(204,136,0,0.3),rgba(0,0,0,0));border-color:var(--conhecimento-l)" onclick="editItemFromDetail()">✏️ EDITAR</button>
+      <button class="mbtn mbtn-s" style="border-color:rgba(204,17,17,0.3);color:rgba(255,51,51,0.6)" onclick="delItemFromDetail()">🗑️ REMOVER ITEM</button>
+      <button class="mbtn mbtn-s" onclick="closeModal('modal-item-detail')">FECHAR</button>
+    </div>
+  </div>
+</div>
+
+<!-- RITUAL CUSTOM -->
+<div class="modal-bg" id="modal-ritual">
+  <div class="modal-sheet" style="--m-c:var(--energia-l)">
+    <div class="modal-handle"></div>
+    <div class="modal-title">✦ RITUAL CUSTOMIZADO</div>
+    <label>NOME</label><input type="text" id="rc-name" placeholder="Nome do ritual...">
+    <div class="two-col">
+      <div><label>ELEMENTO</label>
+        <select id="rc-elem">
+          <option value="SANGUE">SANGUE</option>
+          <option value="ENERGIA">ENERGIA</option>
+          <option value="MORTE">MORTE</option>
+          <option value="CONHECIMENTO">CONHECIMENTO</option>
+          <option value="MEDO">MEDO</option>
+        </select>
+      </div>
+      <div><label>CÍRCULO</label>
+        <select id="rc-circle">
+          <option value="1">1º</option><option value="2">2º</option>
+          <option value="3">3º</option><option value="4">4º</option>
+        </select>
+      </div>
+    </div>
+    <label>CUSTO</label><input type="text" id="rc-cost" placeholder="Ex: 2 PE + 1 PV">
+    <label>DESCRIÇÃO</label><textarea id="rc-desc" placeholder="Efeito do ritual..."></textarea>
+    <div class="mbtns">
+      <button class="mbtn mbtn-p" onclick="addCustomRitual()">CRIAR</button>
+      <button class="mbtn mbtn-s" onclick="closeModal('modal-ritual')">CANCELAR</button>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+/* ══════════════════════════════════════════
+   CANVAS BACKGROUND — RUNE RAIN
+══════════════════════════════════════════ */
+(()=>{
+  const cv=document.getElementById('c'),ctx=cv.getContext('2d');
+  let W,H;
+  const RUNES='ᚠᚢᚦᚨᚱᚲᚷᚹᚺᚾᛁᛃᛇᛈᛉᛊᛏᛒᛖᛗᛚᛜᛞᛟ✦✧⚡☽⊕⊗∞'.split('');
+  const COLS_W=22;
+  let drops=[];
+  function resize(){
+    W=cv.width=window.innerWidth;
+    H=cv.height=window.innerHeight;
+    const n=Math.ceil(W/COLS_W);
+    while(drops.length<n)drops.push(Math.random()*-80);
+    drops=drops.slice(0,n);
+  }
+  window.addEventListener('resize',resize);resize();
+  const ELEMS=['rgba(204,17,17','rgba(136,0,255','rgba(85,85,170','rgba(255,187,0','rgba(170,51,255'];
+  function frame(){
+    ctx.fillStyle='rgba(5,5,8,0.045)';ctx.fillRect(0,0,W,H);
+    drops.forEach((y,i)=>{
+      const ch=RUNES[Math.floor(Math.random()*RUNES.length)];
+      const col=ELEMS[Math.floor(Math.random()*ELEMS.length)];
+      ctx.font=`13px 'Share Tech Mono',monospace`;
+      ctx.fillStyle=`${col},${0.03+Math.random()*0.07})`;
+      ctx.fillText(ch,i*COLS_W,y);
+      drops[i]+=14;
+      if(drops[i]>H&&Math.random()>.97)drops[i]=Math.random()*-60;
+    });
+  }
+  setInterval(frame,60);
+})();
+
+/* ══════════════════════════════════════════
+   DATABASE
+══════════════════════════════════════════ */
+const RITUALS_DB=[
+  // SANGUE (symbol: cross-like with double horizontal bars — img 1)
+  {n:'Cicatrizar',e:'SANGUE',c:1,cost:'1 PE',d:'Recupera 2d8+2 PV num alvo tocado. Pode ser usado em si mesmo.'},
+  {n:'Arma de Sangue',e:'SANGUE',c:1,cost:'1 PE',d:'Manifesta arma orgânica que causa 1d10 dano de sangue. Dura até fim da cena.'},
+  {n:'Drenar Vida',e:'SANGUE',c:2,cost:'2 PE',d:'Absorve 2d8 PV de alvo adjacente, transferindo para si mesmo.'},
+  {n:'Maldição de Sangue',e:'SANGUE',c:2,cost:'2 PE+1 PV',d:'Alvo perde 1d6 PV por rodada por 3 rodadas. VIG CD 15 anula.'},
+  {n:'Golem de Carne',e:'SANGUE',c:3,cost:'3 PE+5 PV',d:'Cria criatura de carne animada (PV 40, FOR 4, AGI 2) que obedece ordens.'},
+  {n:'Sacrifício Supremo',e:'SANGUE',c:4,cost:'5 PE+10 PV',d:'Para cada 5 PV sacrificados, adiciona +1 dado ao próximo ritual.'},
+  // ENERGIA (symbol: intricate sigil — img 2)
+  {n:'Eletrocussão',e:'ENERGIA',c:1,cost:'1 PE',d:'2d6 dano de energia. Alvo fica vulnerável (+2 dano recebido) por 1 rodada.'},
+  {n:'Embaralhar',e:'ENERGIA',c:1,cost:'1 PE',d:'Cria cópias ilusórias de si mesmo. +10 Defesa até ser atingido.'},
+  {n:'Descarga Arcana',e:'ENERGIA',c:2,cost:'2 PE',d:'3d8 dano em área 6m ao redor. AGI CD 14 reduz à metade.'},
+  {n:'Escudo Energético',e:'ENERGIA',c:1,cost:'1 PE',d:'+5 Defesa e imunidade a dano de energia por 1 rodada. Reação.'},
+  {n:'Raio Arcano',e:'ENERGIA',c:2,cost:'2 PE',d:'Raio em linha reta, todos os alvos sofrem 3d10 dano. Alcance 18m.'},
+  {n:'Tempestade Caótica',e:'ENERGIA',c:4,cost:'5 PE',d:'Tempestade de energia por 3 rodadas. Todos na área: 2d6 por rodada.'},
+  // MORTE (symbol: OP spiral — img 4)
+  {n:'Decadência',e:'MORTE',c:1,cost:'1 PE',d:'2d8 dano de morte. Envelhece o alvo visivelmente.'},
+  {n:'Consumir Manancial',e:'MORTE',c:1,cost:'1 PE',d:'Suga energia vital (6m). Recupera 1d6+PRE PV temporários.'},
+  {n:'Invocar Espectro',e:'MORTE',c:3,cost:'3 PE',d:'Evoca espectro aliado por 3 rodadas (PV 30, ataque 2d10 morte, DEF 14).'},
+  {n:'Véu de Morte',e:'MORTE',c:2,cost:'2 PE',d:'Invisível a mortos-vivos. Imune a dano de morte por 1 minuto.'},
+  {n:'Amaldiçoar',e:'MORTE',c:2,cost:'2 PE',d:'-2 em todos os testes por 24h. Magia CD 16 remove.'},
+  {n:'Ressurreição',e:'MORTE',c:4,cost:'5 PE+5 SAN',d:'Ressuscita alvo morto há menos de 1h. Perde 1 ponto permanente num atributo.'},
+  // CONHECIMENTO (symbol: wheel of symbols — img 3)
+  {n:'Tecer Ilusão',e:'CONHECIMENTO',c:1,cost:'1 PE',d:'Cria imagem ou som ilusório permanente até ser investigado (INT CD 15).'},
+  {n:'Visão Paranormal',e:'CONHECIMENTO',c:1,cost:'1 PE',d:'Por 10 min vê seres do Outro Lado, auras e rastros paranormais.'},
+  {n:'Telecinese',e:'CONHECIMENTO',c:2,cost:'2 PE',d:'Move objeto de até 50kg. Pode realizar ataques precisos à distância.'},
+  {n:'Extrair Memória',e:'CONHECIMENTO',c:2,cost:'2 PE+1 SAN',d:'Lê última memória de alvo inconsciente ou morto há menos de 1h.'},
+  {n:'Memória Ancestral',e:'CONHECIMENTO',c:3,cost:'3 PE',d:'Acessa conhecimento coletivo de linhagem ou local. Mestre revela segredos.'},
+  {n:'Onisciência',e:'CONHECIMENTO',c:4,cost:'5 PE+3 SAN',d:'Por 1 rodada, você sabe posições inimigas, armadilhas e segredos do local.'},
+  // MEDO (symbol: energy sigil — img 5)
+  {n:'Olhar do Terror',e:'MEDO',c:1,cost:'1 PE',d:'Alvo fica amedrontado por 1 rodada (-2 ataques, não pode se aproximar).'},
+  {n:'Alucinação',e:'MEDO',c:2,cost:'2 PE',d:'Alvo vê seus piores medos. Perde ação por 1 rodada. PRE CD 14 anula.'},
+  {n:'Pânico em Massa',e:'MEDO',c:3,cost:'3 PE+2 SAN',d:'Todos a 12m: PRE CD 15 ou fogem por 2 rodadas.'},
+  {n:'Pesadelo Eterno',e:'MEDO',c:4,cost:'5 PE+5 SAN',d:'Alvo dorme por 8h em pesadelo. Ao acordar, perde 1d10 SAN permanente.'},
+];
+
+const WIKI_DB=[
+  {icon:'🌌',title:'O Outro Lado',body:'Uma dimensão paralela à nossa, repleta de entidades, parasitas e energias caóticas. A Membrana separa os dois mundos, mas ela está se deteriorando. Agentes da Ordem investigam e contêm essas anomalias.'},
+  {icon:'🔮',title:'NEX (Nível de Exposição)',body:'Mede o quanto um personagem foi exposto ao Outro Lado. Varia de 5% a 99%. Em 5%: iniciante. Em 99%: tocado pelo caos. Cada porcentagem traz habilidades mas deteriora a humanidade.'},
+  {icon:'💀',title:'Sistema de Sanidade',body:'Pontos de Sanidade (SAN) medem a saúde mental. Ao zerar: o personagem desenvolve um transtorno permanente. Eventos traumáticos causam perda de SAN. Rituais de Medo causam perda permanente de PD.'},
+  {icon:'⚡',title:'Elemento: ENERGIA',body:'Manipula energia arcana pura. Ataques elétricos, ilusões energéticas e escudos. Símbolo: um sigilo complexo de círculos e linhas. Cor: roxo/violeta. Organizações: Hermética, Arcanistas.'},
+  {icon:'🩸',title:'Elemento: SANGUE',body:'Controla força vital. Cura, drena, cria armas orgânicas. Símbolo: cruz dupla com linhas horizontais, brilho vermelho. Cor: vermelho profundo. Organizações: Vitalistas, Seita Escarlate.'},
+  {icon:'💀',title:'Elemento: MORTE',body:'Domínio sobre a morte e além. Invoca espectros, aplica maldições, ressuscita. Símbolo: espiral concêntrica com raios. Cor: azul-roxo pálido. Organizações: Morte Cinza, Necromantes.'},
+  {icon:'📖',title:'Elemento: CONHECIMENTO',body:'Acessa informações, cria ilusões, telecinese. Símbolo: roda de símbolos arcanos em círculo (como um alfabeto desconhecido). Cor: dourado. Organizações: Acadêmicos, Biblioteca Proibida.'},
+  {icon:'😱',title:'Elemento: MEDO',body:'Manipula o terror e o inconsciente. Alucinações, pânico, pesadelos. Símbolo: triângulo com ramificações assimétricas, brilho roxo. Cor: roxo escuro. Organizações: Culto do Véu, Pesadelo Eterno.'},
+  {icon:'🏛️',title:'Organizações',body:'Ordem Paranormal (investigação oficial), Hermética (magia acadêmica), Morte Cinza (adoradores da morte), Seita Escarlate (cultistas de sangue), Agência Pública de Segurança Paranormal (APSP).'},
+  {icon:'🧠',title:'Testes de Atributo',body:'Role Nd20 onde N = valor do atributo, pega o maior resultado. Crítico = 20, Falha Crítica = 1 (apenas com 1 dado). Perícias somam bônus de treinamento (+5/+10/+15) ao resultado da rolagem.'},
+  {icon:'⚔️',title:'Combate',body:'Iniciativa: AGI. Ataque: atributo relevante. Dano: varia por arma/ritual. Defesa = 10 + AGI. Ataques corpo-a-corpo usam FOR ou AGI. Ataques à distância usam AGI ou INT.'},
+  {icon:'🌀',title:'A Membrana',body:'Barreira dimensional que separa o mundo real do Outro Lado. Está se fragmentando. Anomalias são pontos de ruptura. Quando a Membrana quebra localmente, entidades podem atravessar — e assim começa uma missão.'},
+];
+
+const SAN_LEVELS=[
+  {min:76,name:'Estável',desc:'O agente está psicologicamente estável. A Membrana permanece distante.',color:'#44dd88'},
+  {min:51,name:'Abalado',desc:'Pesadelos ocasionais. Pequenos lapsos de percepção. O Outro Lado sussurra.',color:'#aacc44'},
+  {min:26,name:'Perturbado',desc:'Alucinações frequentes. Dificuldade de distinguir real do paranormal. -1 em testes de PRE.',color:'#ffaa00'},
+  {min:11,name:'Instável',desc:'Episódios de pânico incontroláveis. Entidades o seguem. -2 em testes de INT.',color:'#ff6600'},
+  {min:1, name:'À Beira do Abismo',desc:'A linha entre os mundos desapareceu. Você vê o Outro Lado a todo momento. Transtorno permanente.',color:'#ff2244'},
+  {min:0, name:'COLAPSO TOTAL',desc:'A sanidade se foi. O agente se tornou uma anomalia.',color:'#cc0000'},
+];
+
+const ELEM_CFG={
+  SANGUE:   {color:'#cc1111',light:'#ff3333',glow:'rgba(204,17,17,0.35)'},
+  ENERGIA:  {color:'#8800ff',light:'#bb44ff',glow:'rgba(136,0,255,0.35)'},
+  MORTE:    {color:'#5555aa',light:'#9999ee',glow:'rgba(85,85,170,0.35)'},
+  CONHECIMENTO:{color:'#cc8800',light:'#ffbb00',glow:'rgba(255,187,0,0.3)'},
+  MEDO:     {color:'#440066',light:'#aa33ff',glow:'rgba(170,51,255,0.35)'},
+};
+// SVG symbols inspired by the uploaded element images
+const ELEM_SVGS={
+  SANGUE:`<svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round">
+    <line x1="50" y1="10" x2="50" y2="90"/>
+    <line x1="20" y1="35" x2="80" y2="35"/>
+    <line x1="15" y1="55" x2="85" y2="55"/>
+    <line x1="25" y1="75" x2="75" y2="75"/>
+  </svg>`,
+  ENERGIA:`<svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round">
+    <circle cx="55" cy="28" r="18"/>
+    <circle cx="42" cy="30" r="5"/>
+    <circle cx="72" cy="58" r="5"/>
+    <line x1="50" y1="46" x2="50" y2="90"/>
+    <line x1="30" y1="42" x2="18" y2="62"/>
+    <path d="M50 62 Q70 55 70 70 Q70 82 58 82"/>
+    <path d="M50 70 Q35 80 40 90"/>
+  </svg>`,
+  MORTE:`<svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round">
+    <circle cx="50" cy="50" r="38"/>
+    <circle cx="50" cy="50" r="25"/>
+    <circle cx="50" cy="50" r="12"/>
+    <line x1="50" y1="5" x2="50" y2="12"/>
+    <line x1="88" y1="35" x2="82" y2="38"/>
+    <line x1="88" y1="65" x2="82" y2="62"/>
+    <line x1="20" y1="20" x2="25" y2="25"/>
+    <line x1="80" y1="20" x2="75" y2="25"/>
+    <line x1="50" y1="88" x2="50" y2="95"/>
+    <line x1="15" y1="60" x2="22" y2="56"/>
+  </svg>`,
+  CONHECIMENTO:`<svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+    <circle cx="50" cy="50" r="8"/>
+    ${Array.from({length:12},(_,i)=>{
+      const a=i*(Math.PI*2/12)-Math.PI/2;
+      const r1=18,r2=28,r3=42;
+      const x1=50+r1*Math.cos(a),y1=50+r1*Math.sin(a);
+      const x2=50+r2*Math.cos(a),y2=50+r2*Math.sin(a);
+      const x3=50+r3*Math.cos(a+0.2),y3=50+r3*Math.sin(a+0.2);
+      return `<line x1="${x1}" y1="${y1}" x2="${x3}" y2="${y3}"/>`;
+    }).join('')}
+  </svg>`,
+  MEDO:`<svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round">
+    <path d="M50 10 L60 35 L50 30 Z"/>
+    <path d="M50 10 L40 35 L50 30 Z"/>
+    <path d="M50 30 L50 70"/>
+    <path d="M50 70 L20 90"/>
+    <path d="M50 70 L80 90"/>
+    <path d="M50 50 L20 40"/>
+    <path d="M50 50 L80 40"/>
+    <path d="M50 60 L25 75"/>
+    <path d="M50 60 L75 75"/>
+  </svg>`,
+};
+
+const CAT_ICONS={arma:'⚔️',protecao:'🛡️',consumivel:'🧪',ocultismo:'🔮',geral:'📦'};
+const CAT_COLORS={arma:'#ff4444',protecao:'#4488ff',consumivel:'#44dd88',ocultismo:'#aa44ff',geral:'#888888'};
+const ATTR_CFG=[
+  {k:'agi',l:'AGILIDADE',a:'AGI',c:'#00ffaa',px:50, py:8},
+  {k:'int',l:'INTELECTO', a:'INT',c:'#aa44ff',px:97,py:38},
+  {k:'vig',l:'VIGOR',     a:'VIG',c:'#ff9900',px:80,py:90},
+  {k:'pre',l:'PRESENÇA',  a:'PRE',c:'#ff4499',px:20,py:90},
+  {k:'for',l:'FORÇA',     a:'FOR',c:'#ff2244',px:3, py:38},
+];
+
+/* ══════════════════════════════════════════
+   STATE
+══════════════════════════════════════════ */
+const TAB_COLORS=['#cc1111','#8800ff','#cc8800','#5555aa','#ff4444','#00aaff'];
+let players=[], activeP=0, selDieVal=20, diceHist=[], invCatFilter='all', libElemFilters=new Set(['SANGUE','ENERGIA','MORTE','CONHECIMENTO','MEDO']);
+
+function P(){return players[activeP];}
+
+function mkPlayer(name='Agente'){
+  return {
+    char:{name,class:'',elem:'',level:1,nex:5,org:'',origin:'',def:12},
+    hp:{cur:20,max:20},san:{cur:20,max:20},pe:{cur:5,max:5},
+    attrs:{for:2,agi:2,int:2,vig:2,pre:2},
+    skills:[],inventory:[],rituals:[],conditions:[],notes:'',photo:null,
+    color:TAB_COLORS[0]
+  };
+}
+
+/* ══════════════════════════════════════════
+   PERSISTENCE
+══════════════════════════════════════════ */
+function save(){
+  try{localStorage.setItem('op_v10_p',JSON.stringify(players));localStorage.setItem('op_v10_a',activeP);}catch(e){}
+}
+function load(){
+  try{
+    const r=localStorage.getItem('op_v10_p'),i=localStorage.getItem('op_v10_a');
+    if(r){players=JSON.parse(r);activeP=Math.max(0,Math.min(parseInt(i)||0,players.length-1));}
+    players.forEach((p,i)=>{if(!p.color)p.color=TAB_COLORS[i%TAB_COLORS.length];});
+  }catch(e){}
+  if(!players.length)players=[mkPlayer('Agente #1')];
+}
+
+/* ══════════════════════════════════════════
+   RENDER
+══════════════════════════════════════════ */
+function renderAll(){
+  renderCharTabs();
+  renderBanner();
+  renderBars();
+  renderSanity();
+  renderPentagon();
+  renderSkillsMini();
+  renderSkillsFull();
+  renderRituals();
+  renderLibrary();
+  renderInventory();
+  renderWiki();
+  save();
+}
+
+/* CHAR TABS */
+function renderCharTabs(){
+  const cont=document.getElementById('char-tabs');
+  cont.innerHTML='';
+  players.forEach((p,i)=>{
+    const b=document.createElement('button');
+    b.className='ctab'+(i===activeP?' active':'');
+    b.style.setProperty('--tab-c',p.color);
+    b.innerHTML=`<div class="ctab-name">${p.char.name||`Agente ${i+1}`}</div><div class="ctab-lvl">LVL ${p.char.level||1} · ${p.char.elem||'—'}</div>`;
+    b.onclick=()=>switchChar(i);
+    if(i===activeP)b.ondblclick=()=>{
+      if(players.length<=1){toast('Única ficha!');return;}
+      if(confirm(`Deletar "${p.char.name}"?`)){players.splice(i,1);activeP=Math.max(0,activeP-1);renderAll();}
+    };
+    cont.appendChild(b);
+  });
+}
+function switchChar(i){save();activeP=i;renderAll();}
+function createChar(){
+  const n=document.getElementById('nc-name').value.trim()||`Agente ${players.length+1}`;
+  const p=mkPlayer(n);p.color=TAB_COLORS[players.length%TAB_COLORS.length];
+  players.push(p);activeP=players.length-1;
+  document.getElementById('nc-name').value='';
+  closeModal('modal-new-char');
+  renderAll();log(`Nova ficha: ${n}`,'info');
+}
+
+/* BANNER */
+function renderBanner(){
+  const p=P(),ec=p.char.elem?ELEM_CFG[p.char.elem]:null;
+  const col=ec?ec.color:ELEM_CFG.SANGUE.color;
+  const glow=ec?ec.glow:ELEM_CFG.SANGUE.glow;
+  document.getElementById('char-banner-bg').style.background=`radial-gradient(ellipse at top right,${glow},transparent 65%)`;
+  const pw=document.getElementById('photo-wrap');if(pw)pw.style.cssText=`border-color:${col};box-shadow:0 0 15px ${glow};`;
+  document.getElementById('char-name-disp').textContent=p.char.name||'— AGENTE —';
+
+  // Photo
+  const img=document.getElementById('char-photo'),ph=document.getElementById('photo-ph');
+  if(p.photo){img.src=p.photo;img.style.display='block';ph.style.display='none';}
+  else{img.style.display='none';ph.style.display='flex';}
+
+  // Badges
+  const bd=document.getElementById('char-badges');
+  bd.innerHTML='';
+  if(p.char.class) bd.innerHTML+=`<span class="badge badge-class">${p.char.class}</span>`;
+  if(p.char.nex)   bd.innerHTML+=`<span class="badge badge-nex">NEX ${p.char.nex}%</span>`;
+  if(p.char.org)   bd.innerHTML+=`<span class="badge badge-org">${p.char.org}</span>`;
+  if(p.char.elem)  bd.innerHTML+=`<span class="badge badge-elem" style="border-color:${col};color:${col}">${p.char.elem}</span>`;
+  if(p.char.def)   bd.innerHTML+=`<span class="badge" style="border-color:#555;color:#aaa">DEF ${p.char.def}</span>`;
+
+  // Elem symbol
+  const sym=document.getElementById('elem-symbol-banner');
+  if(p.char.elem&&ELEM_SVGS[p.char.elem]){
+    sym.innerHTML=ELEM_SVGS[p.char.elem];
+    sym.querySelector('svg').style.color=col;
+    sym.style.display='block';
+  } else {sym.style.display='none';}
+
+  // Conditions
+  const CONDS=[
+    {k:'abalado',l:'ABALADO',c:'#ff6060'},
+    {k:'insano',l:'INSANO',c:'#aa66ff'},
+    {k:'sangrando',l:'SANGRANDO',c:'#ff2222'},
+    {k:'inconsciente',l:'INCONSCIENTE',c:'#8899ff'},
+    {k:'envenenado',l:'ENVENENADO',c:'#44cc88'},
+    {k:'morto',l:'MORTO',c:'#555577'},
+  ];
+  const cr=document.getElementById('conds-row');
+  cr.innerHTML='';
+  CONDS.forEach(cd=>{
+    const on=(p.conditions||[]).includes(cd.k);
+    const b=document.createElement('button');
+    b.className='cond-btn'+(on?' on':'');
+    b.style.setProperty('--cc',cd.c);
+    b.textContent=cd.l;
+    b.dataset.k=cd.k;
+    b.onclick=()=>toggleCond(b,cd.k);
+    cr.appendChild(b);
+  });
+}
+function toggleCond(btn,k){
+  const p=P();if(!p.conditions)p.conditions=[];
+  const i=p.conditions.indexOf(k);
+  if(i===-1){p.conditions.push(k);btn.classList.add('on');log(`Condição: ${k.toUpperCase()} aplicada`,'fail');}
+  else{p.conditions.splice(i,1);btn.classList.remove('on');log(`Condição: ${k.toUpperCase()} removida`,'info');}
+  save();
+}
+
+/* BARS */
+function renderBars(){
+  const p=P();
+  ['hp','san','pe'].forEach(k=>{
+    const pct=p[k].max>0?(p[k].cur/p[k].max)*100:0;
+    document.getElementById(`${k}-f`).style.width=Math.max(0,Math.min(100,pct))+'%';
+    document.getElementById(`${k}-n`).textContent=`${p[k].cur}/${p[k].max}`;
+    document.getElementById(`bar-${k}`).classList.toggle('danger',pct<=25&&pct>0&&k==='hp');
+  });
+}
+function delta(k,d){
+  const p=P(),prev=p[k].cur;
+  p[k].cur=Math.max(0,Math.min(p[k].max,p[k].cur+d));
+  if(p[k].cur===prev)return;
+  const diff=p[k].cur-prev;
+  const sign=diff>0?'+':'';
+  const label=k==='hp'?'PV':k==='san'?'SAN':'PE';
+  if(diff<0){
+    document.body.style.background=k==='san'?'#0a0015':k==='pe'?'#120900':'#150000';
+    setTimeout(()=>document.body.style.background='',280);
+  }
+  log(`${label}: ${sign}${diff} → ${p[k].cur}/${p[k].max}`,diff<0?'fail':'heal');
+  if(k==='hp'&&p[k].cur===0)log('☠ PERSONAGEM MORTO OU INCONSCIENTE!','fail');
+  if(k==='san'&&p[k].cur===0)log('💀 COLAPSO TOTAL DE SANIDADE!','fail');
+  renderBars();renderSanity();save();
+}
+function quickStat(k){
+  const p=P();
+  const label=k==='hp'?'VIDA (PV)':k==='san'?'SANIDADE':'ESFORÇO';
+  document.getElementById('modal-stat-title').textContent=`EDITAR ${label}`;
+  document.getElementById('mstat-key').value=k;
+  document.getElementById('mstat-val').value='';
+  document.getElementById('mstat-max').value='';
+  openModal('modal-stat');
+}
+function applyStatEdit(){
+  const k=document.getElementById('mstat-key').value;
+  const rv=document.getElementById('mstat-val').value.trim();
+  const rm=document.getElementById('mstat-max').value.trim();
+  const p=P();
+  if(rm){const m=parseInt(rm);if(m>0){p[k].max=m;p[k].cur=Math.min(p[k].cur,m);}}
+  if(rv){
+    if(rv.startsWith('+')||rv.startsWith('-'))delta(k,parseInt(rv));
+    else{p[k].cur=Math.max(0,Math.min(p[k].max,parseInt(rv)||0));}
+  }
+  closeModal('modal-stat');renderBars();renderSanity();save();
+}
+
+/* SANITY */
+function renderSanity(){
+  const p=P();
+  const pct=p.san.max>0?Math.round((p.san.cur/p.san.max)*100):0;
+  const lv=SAN_LEVELS.find(l=>pct>=l.min)||SAN_LEVELS[SAN_LEVELS.length-1];
+  document.getElementById('san-level-name').textContent=lv.name;
+  document.getElementById('san-level-name').style.color=lv.color;
+  document.getElementById('san-level-pct').textContent=`${pct}%`;
+  document.getElementById('san-desc').textContent=lv.desc;
+  // Orbs
+  const orbs=document.getElementById('san-orbs');
+  orbs.innerHTML='';
+  const total=Math.min(p.san.max,20);
+  const filled=Math.round((p.san.cur/p.san.max)*total)||0;
+  for(let i=0;i<total;i++){
+    const o=document.createElement('div');
+    o.className='san-orb'+(i<filled?' filled':'');
+    o.style.background=i<filled?lv.color:'';
+    o.style.boxShadow=i<filled?`0 0 6px ${lv.color}`:'';
+    o.style.borderColor=i<filled?lv.color:'';
+    o.onclick=()=>{p.san.cur=Math.max(0,Math.min(p.san.max,Math.round((i+1)/total*p.san.max)));renderBars();renderSanity();save();};
+    orbs.appendChild(o);
+  }
+}
+
+/* PENTAGON */
+function renderPentagon(){
+  const p=P();
+  const cv=document.getElementById('penta-canvas');
+  const ctx=cv.getContext('2d');
+  const W=220,H=220,cx=110,cy=110,R=90;
+  ctx.clearRect(0,0,W,H);
+  const pts=ATTR_CFG.map(a=>({
+    x:cx+(a.px/100-0.5)*2*R,
+    y:cy+(a.py/100-0.5)*2*R
+  }));
+  // Outer polygon
+  ctx.beginPath();pts.forEach((pt,i)=>i===0?ctx.moveTo(pt.x,pt.y):ctx.lineTo(pt.x,pt.y));ctx.closePath();
+  ctx.strokeStyle='rgba(255,255,255,0.08)';ctx.lineWidth=1;ctx.stroke();
+  ctx.fillStyle='rgba(255,255,255,0.01)';ctx.fill();
+  // Lines to center
+  pts.forEach(pt=>{ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(pt.x,pt.y);ctx.strokeStyle='rgba(255,255,255,0.04)';ctx.stroke();});
+  // Value polygon
+  const vpts=ATTR_CFG.map((a,i)=>{
+    const v=p.attrs[a.k]/5;
+    return {x:cx+(pts[i].x-cx)*v,y:cy+(pts[i].y-cy)*v};
+  });
+  ctx.beginPath();vpts.forEach((pt,i)=>i===0?ctx.moveTo(pt.x,pt.y):ctx.lineTo(pt.x,pt.y));ctx.closePath();
+  const ec=p.char.elem?ELEM_CFG[p.char.elem]:null;
+  const strokeC=ec?ec.light:'rgba(0,255,170,0.6)';
+  const fillC=ec?ec.glow:'rgba(0,255,170,0.08)';
+  ctx.strokeStyle=strokeC;ctx.lineWidth=1.5;ctx.stroke();
+  ctx.fillStyle=fillC;ctx.fill();
+  // Dots
+  vpts.forEach((pt,i)=>{
+    ctx.beginPath();ctx.arc(pt.x,pt.y,3,0,Math.PI*2);
+    ctx.fillStyle=ATTR_CFG[i].c;ctx.fill();
+  });
+
+  // Nodes
+  const nodes=document.getElementById('penta-nodes');
+  nodes.innerHTML='';
+  ATTR_CFG.forEach((a,i)=>{
+    const nd=document.createElement('div');
+    nd.className='pnode';
+    nd.style.cssText=`left:${a.px}%;top:${a.py}%;--nc:${a.c};`;
+    nd.innerHTML=`<div class="pnode-key">${a.a}</div><div class="pnode-val">${p.attrs[a.k]}</div><div class="pnode-ctrls"><button class="pnbtn" onclick="chAttr('${a.k}',-1,event)">−</button><button class="pnbtn" onclick="chAttr('${a.k}',1,event)">+</button></div>`;
+    nd.onclick=()=>rollAttr(a.k,a.l);
+    nodes.appendChild(nd);
+  });
+}
+function chAttr(k,d,e){
+  e&&e.stopPropagation();
+  const p=P();p.attrs[k]=Math.max(1,Math.min(5,p.attrs[k]+d));
+  renderPentagon();save();
+}
+function rollAttr(k,label){
+  const p=P();
+  const n=p.attrs[k];
+  const rolls=Array.from({length:n},()=>Math.floor(Math.random()*20)+1);
+  const best=Math.max(...rolls);
+  const isCrit=best===20,isFail=best===1&&n===1;
+  showDiceResultArena(best,label,isCrit?'CRIT':isFail?'FAIL':'');
+  log(`${label} (${n}d20→melhor): [${rolls.join(', ')}] = ${best}${isCrit?' ★ CRÍTICO!':isFail?' ✕ FALHA!':''}`,isCrit?'crit':isFail?'fail':'');
+  spawnParticles(best,isCrit?'#ffcc00':isFail?'#ff2244':'#00ffaa');
+  if(getCurrentPage()!=='page-dados')
+    toast(`${label}: ${best}${isCrit?' ★ CRÍTICO':isFail?' ✕ FALHA':''}`);
+}
+
+/* SKILLS */
+const TRAIN_LBL=['','Treinado','Veterano','Expert'];
+const ATTR_SHORT={for:'FOR',agi:'AGI',int:'INT',vig:'VIG',pre:'PRE'};
+function renderSkillsMini(){
+  const p=P();
+  const el=document.getElementById('skills-mini');
+  if(!p.skills.length){el.innerHTML='<div class="empty-state" style="padding:16px"><span class="empty-icon" style="font-size:1.5rem">📋</span>Nenhuma perícia</div>';return;}
+  el.innerHTML=p.skills.slice(0,5).map((s,i)=>skillRowHTML(s,i,'m')).join('');
+}
+function renderSkillsFull(){
+  const p=P();
+  const el=document.getElementById('skills-full');
+  if(!p.skills.length){el.innerHTML='<div class="empty-state"><span class="empty-icon">📋</span>Adicione perícias ao personagem</div>';return;}
+  el.innerHTML=p.skills.map((s,i)=>skillRowHTML(s,i,'f')).join('');
+}
+function skillRowHTML(s,i,prefix=''){
+  const total=s.mod+(s.train||0)*5;
+  return `<div class="skill-row" onclick="rollSkill(${i})">
+    <div class="skill-name">${s.name}</div>
+    <div class="skill-badges">
+      <span class="skill-attr-b">${ATTR_SHORT[s.attr]||s.attr}</span>
+      ${s.train?`<span class="skill-attr-b" style="color:var(--energia-l);border-color:rgba(136,0,255,0.3)">${TRAIN_LBL[s.train]}</span>`:''}
+    </div>
+    <span class="skill-mod">+${total}</span>
+    <span class="skill-last" id="sklast-${prefix}${i}"></span>
+    <button class="skill-del-btn" onclick="delSkill(${i},event)">✕</button>
+  </div>`;
+}
+function addSkill(){
+  const name=document.getElementById('sk-name').value.trim();if(!name)return;
+  P().skills.push({name,attr:document.getElementById('sk-attr').value,mod:parseInt(document.getElementById('sk-mod').value)||0,train:parseInt(document.getElementById('sk-train').value)||0});
+  document.getElementById('sk-name').value='';document.getElementById('sk-mod').value='';
+  closeModal('modal-skill');renderSkillsMini();renderSkillsFull();save();
+}
+function delSkill(i,e){e.stopPropagation();P().skills.splice(i,1);renderSkillsMini();renderSkillsFull();save();}
+function rollSkill(i){
+  const p=P(),s=p.skills[i];
+  const total=s.mod+(s.train||0)*5,n=p.attrs[s.attr]||1;
+  const rolls=Array.from({length:n},()=>Math.floor(Math.random()*20)+1);
+  const best=Math.max(...rolls),res=best+total;
+  const isCrit=best===20,isFail=best===1&&n===1;
+  showDiceResultArena(res,s.name,isCrit?'CRIT':isFail?'FAIL':'');
+  log(`${s.name} [${rolls.join(',')}]+${total}=${res}${isCrit?' ★':isFail?' ✕':''}`,isCrit?'crit':isFail?'fail':'');
+  spawnParticles(res,isCrit?'#ffcc00':'#00ffaa');
+  // Update last result in both mini and full lists without navigating
+  ['m','f'].forEach(pfx=>{
+    const el=document.getElementById(`sklast-${pfx}${i}`);
+    if(el)el.textContent=`→${res}`;
+  });
+  // Only navigate if already on dados, otherwise show toast
+  if(getCurrentPage()==='page-dados')return;
+  toast(`${s.name}: ${res}${isCrit?' ★ CRÍTICO':isFail?' ✕ FALHA':''}`);
+}
+
+/* RITUALS */
+function renderRituals(){
+  const p=P();
+  const el=document.getElementById('rit-my-list');
+  if(!p.rituals.length){el.innerHTML='<div class="empty-state"><span class="empty-icon">✦</span>Nenhum ritual aprendido. Explore a Biblioteca!</div>';return;}
+  el.innerHTML=p.rituals.map((r,i)=>ritCardHTML(r,i)).join('');
+}
+function ritCardHTML(r,i){
+  const ec=ELEM_CFG[r.e]||ELEM_CFG.SANGUE;
+  return `<div class="rit-card" style="border-color:${ec.color}55;background:rgba(12,12,20,0.96);">
+    <div style="position:absolute;inset:0;background:radial-gradient(ellipse at top left,${ec.glow},transparent 60%);border-radius:var(--radius);pointer-events:none;"></div>
+    <div style="position:relative;z-index:1;">
+    <div class="rit-elem-row">
+      <span class="rit-badge" style="color:${ec.light};border-color:${ec.light}">${r.e}</span>
+      <span class="rit-circle">${r.c||1}º CÍRCULO</span>
+    </div>
+    <div class="rit-name">${r.n}</div>
+    <div class="rit-cost" style="color:${ec.light}">Custo: ${r.cost}</div>
+    <div class="rit-desc">${r.d}</div>
+    <div class="rit-actions">
+      <button class="rit-cast" onclick="castRitual(${i})">⚡ CONJURAR</button>
+      <button class="rit-del" onclick="forgetRitual(${i})">ESQUECER</button>
+    </div>
+    </div>
+  </div>`;
+}
+function castRitual(i){
+  const p=P(),r=p.rituals[i];
+  const pe=parseInt((r.cost.match(/(\d+)\s*PE/)||[])[1])||0;
+  const pv=parseInt((r.cost.match(/(\d+)\s*PV/)||[])[1])||0;
+  const san=parseInt((r.cost.match(/(\d+)\s*SAN/)||[])[1])||0;
+  if(pe&&p.pe.cur<pe){toast(`PE insuficiente! (${p.pe.cur}/${pe})`);return;}
+  if(pe)delta('pe',-pe);if(pv)delta('hp',-pv);if(san)delta('san',-san);
+  log(`⚡ ${r.n} conjurado! [${r.cost}]`,'ritual');
+  const ec=ELEM_CFG[r.e]||ELEM_CFG.SANGUE;
+  spawnParticles('✦',ec.light);
+  toast(`${r.n} conjurado!`);
+}
+function forgetRitual(i){
+  if(!confirm(`Esquecer "${P().rituals[i].n}"?`))return;
+  P().rituals.splice(i,1);renderRituals();renderLibrary();save();
+}
+function addCustomRitual(){
+  const name=document.getElementById('rc-name').value.trim();if(!name)return;
+  P().rituals.push({n:name,e:document.getElementById('rc-elem').value,c:parseInt(document.getElementById('rc-circle').value)||1,cost:document.getElementById('rc-cost').value||'1 PE',d:document.getElementById('rc-desc').value});
+  ['rc-name','rc-cost','rc-desc'].forEach(id=>document.getElementById(id).value='');
+  closeModal('modal-ritual');renderRituals();renderLibrary();save();
+  log(`✦ Ritual criado: ${name}`,'ritual');toast(`${name} criado!`);
+}
+
+/* LIBRARY */
+function renderLibrary(){
+  const p=P();
+  const learned=new Set(p.rituals.map(r=>r.n));
+  const filtered=RITUALS_DB.filter(r=>libElemFilters.has(r.e));
+  const el=document.getElementById('lib-list');
+  if(!filtered.length){el.innerHTML='<div class="empty-state"><span class="empty-icon">📚</span>Selecione elementos</div>';return;}
+  el.innerHTML=filtered.map(r=>{
+    const ec=ELEM_CFG[r.e]||ELEM_CFG.SANGUE;
+    const isL=learned.has(r.n);
+    return `<div class="lib-card${isL?' learned':''}" style="border-top:2px solid ${ec.color}44">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+        <span class="rit-badge" style="color:${ec.light};border-color:${ec.color}55;font-size:0.45rem;padding:1px 6px">${r.e}</span>
+        <span class="rit-circle">${r.c}º Círculo</span>
+      </div>
+      <div class="rit-name" style="font-size:0.82rem;margin-bottom:3px">${r.n}</div>
+      <div class="rit-cost" style="color:${ec.light};margin-bottom:5px">Custo: ${r.cost}</div>
+      <div class="rit-desc">${r.d}</div>
+      ${!isL?`<button class="lib-learn-btn" onclick="learnRitual('${r.n}')">✦ APRENDER RITUAL</button>`:''}
+    </div>`;
+  }).join('');
+}
+function catFilt(btn){
+  invCatFilter=btn.dataset.c;
+  document.querySelectorAll('.cf').forEach(b=>b.classList.toggle('on',b===btn));
+  renderInventory();
+}
+function toggleLibElem(btn){
+  const e=btn.dataset.e;
+  if(libElemFilters.has(e)){libElemFilters.delete(e);btn.classList.remove('on');}
+  else{libElemFilters.add(e);btn.classList.add('on');}
+  renderLibrary();
+}
+function learnRitual(name){
+  const p=P();
+  if(p.rituals.find(r=>r.n===name)){toast('Já aprendido!');return;}
+  const r=RITUALS_DB.find(r=>r.n===name);
+  p.rituals.push({...r});
+  renderRituals();renderLibrary();save();
+  log(`✦ Aprendido: ${name}`,'ritual');
+  spawnParticles('✦',(ELEM_CFG[r.e]||ELEM_CFG.SANGUE).light);
+  toast(`${name} aprendido!`);
+}
+function switchRitTab(i,btn){
+  document.querySelectorAll('#page-rituais .tpill').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('rit-mine').style.display=i===0?'block':'none';
+  document.getElementById('rit-lib').style.display=i===1?'block':'none';
+}
+
+/* INVENTORY */
+let _itemPhotoBase64=null; // temp photo while editing
+
+function handleItemPhoto(e){
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    _itemPhotoBase64=ev.target.result;
+    const preview=document.getElementById('it-photo-preview');
+    const ph=document.getElementById('it-photo-ph');
+    const clr=document.getElementById('it-photo-clear');
+    preview.src=_itemPhotoBase64;preview.style.display='block';
+    ph.style.display='none';clr.style.display='block';
+    document.getElementById('it-photo-wrap').style.borderColor='var(--conhecimento-l)';
+  };
+  r.readAsDataURL(f);
+}
+function clearItemPhoto(e){
+  e.stopPropagation();
+  _itemPhotoBase64=null;
+  document.getElementById('it-photo-preview').style.display='none';
+  document.getElementById('it-photo-ph').style.display='flex';
+  document.getElementById('it-photo-clear').style.display='none';
+  document.getElementById('it-photo-input').value='';
+  document.getElementById('it-photo-wrap').style.borderColor='rgba(255,187,0,0.3)';
+}
+function openAddItem(){
+  _itemPhotoBase64=null;
+  document.getElementById('modal-item-title').textContent='＋ ITEM';
+  document.getElementById('it-edit-idx').value='-1';
+  document.getElementById('it-name').value='';
+  document.getElementById('it-cat').value='geral';
+  document.getElementById('it-wt').value='';
+  document.getElementById('it-desc').value='';
+  document.getElementById('it-photo-preview').style.display='none';
+  document.getElementById('it-photo-ph').style.display='flex';
+  document.getElementById('it-photo-clear').style.display='none';
+  document.getElementById('it-photo-input').value='';
+  document.getElementById('it-photo-wrap').style.borderColor='rgba(255,187,0,0.3)';
+  openModal('modal-item');
+}
+function editItemFromDetail(){
+  const i=parseInt(document.getElementById('idet-idx').value);
+  closeModal('modal-item-detail');
+  openEditItem(i);
+}
+function openEditItem(i){
+  const it=P().inventory[i];if(!it)return;
+  _itemPhotoBase64=it.photo||null;
+  document.getElementById('modal-item-title').textContent='✏️ EDITAR ITEM';
+  document.getElementById('it-edit-idx').value=String(i);
+  document.getElementById('it-name').value=it.name||'';
+  document.getElementById('it-cat').value=it.cat||'geral';
+  document.getElementById('it-wt').value=it.weight||1;
+  document.getElementById('it-desc').value=it.desc||'';
+  const preview=document.getElementById('it-photo-preview');
+  const ph=document.getElementById('it-photo-ph');
+  const clr=document.getElementById('it-photo-clear');
+  if(it.photo){
+    preview.src=it.photo;preview.style.display='block';
+    ph.style.display='none';clr.style.display='block';
+    document.getElementById('it-photo-wrap').style.borderColor='var(--conhecimento-l)';
+  } else {
+    preview.style.display='none';ph.style.display='flex';clr.style.display='none';
+    document.getElementById('it-photo-wrap').style.borderColor='rgba(255,187,0,0.3)';
+  }
+  openModal('modal-item');
+}
+function saveItem(){
+  const name=document.getElementById('it-name').value.trim();if(!name)return;
+  const idx=parseInt(document.getElementById('it-edit-idx').value);
+  const item={
+    name,
+    cat:document.getElementById('it-cat').value,
+    weight:parseInt(document.getElementById('it-wt').value)||1,
+    desc:document.getElementById('it-desc').value.trim(),
+    photo:_itemPhotoBase64||null
+  };
+  if(idx>=0&&idx<P().inventory.length){
+    P().inventory[idx]=item;
+    toast(`${name} atualizado!`);
+  } else {
+    P().inventory.push(item);
+    toast(`${name} adicionado!`);
+  }
+  _itemPhotoBase64=null;
+  closeModal('modal-item');renderInventory();save();
+}
+// Keep backward compat alias
+function addItem(){saveItem();}
+
+function openItemDetail(i){
+  const it=P().inventory[i];if(!it)return;
+  document.getElementById('idet-idx').value=String(i);
+  document.getElementById('idet-name').textContent=it.name||'—';
+  document.getElementById('idet-cat').textContent=`${CAT_ICONS[it.cat]||'📦'} ${(it.cat||'geral').toUpperCase()} · ${it.weight||0} ESPAÇO${(it.weight||0)!==1?'S':''}`;
+  document.getElementById('idet-wt').textContent=`${it.weight||0}💼`;
+  document.getElementById('idet-desc').textContent=it.desc||'Sem descrição.';
+  const pw=document.getElementById('idet-photo-wrap');
+  if(it.photo){
+    document.getElementById('idet-photo').src=it.photo;
+    pw.style.display='block';
+  } else {pw.style.display='none';}
+  // Color accent by cat
+  const topColor=CAT_COLORS[it.cat]||'#888';
+  document.querySelector('#modal-item-detail .modal-sheet').style.setProperty('--m-c',topColor);
+  openModal('modal-item-detail');
+}
+function delItemFromDetail(){
+  const i=parseInt(document.getElementById('idet-idx').value);
+  const name=P().inventory[i]?.name||'item';
+  if(!confirm(`Remover "${name}"?`))return;
+  P().inventory.splice(i,1);
+  closeModal('modal-item-detail');renderInventory();save();
+  toast(`${name} removido.`);
+}
+function delItem(i){P().inventory.splice(i,1);renderInventory();save();}
+
+function renderInventory(){
+  const p=P();
+  const totalW=p.inventory.reduce((a,b)=>a+(b.weight||0),0);
+  const pct=Math.min(100,(totalW/15)*100);
+  document.getElementById('wt-cur').textContent=totalW;
+  document.getElementById('wt-fill').style.width=pct+'%';
+  document.getElementById('wt-fill').classList.toggle('over',totalW>15);
+  document.getElementById('wt-warn').style.display=totalW>15?'':'none';
+
+  const filtered=invCatFilter==='all'?p.inventory:p.inventory.filter(it=>it.cat===invCatFilter);
+  const grid=document.getElementById('inv-grid');
+  if(!filtered.length){grid.innerHTML=`<div class="empty-state" style="grid-column:1/-1"><span class="empty-icon">🎒</span>${invCatFilter==='all'?'Inventário vazio':'Sem itens nessa categoria'}</div>`;return;}
+  grid.innerHTML=filtered.map(it=>{
+    const ri=p.inventory.indexOf(it);
+    const topColor=CAT_COLORS[it.cat]||'#888';
+    const hasPhoto=!!it.photo;
+    return `<div class="inv-item ${hasPhoto?'inv-item-has-photo':''}" style="border-top-color:${topColor};${hasPhoto?'grid-column:span 1;':''}" onclick="openItemDetail(${ri})">
+      ${hasPhoto?`<div class="inv-item-img"><img src="${it.photo}" alt="${it.name}" loading="lazy"><div class="inv-item-img-overlay"></div></div>`:''}
+      <div class="inv-item-body">
+        <div class="inv-item-cat"><span>${CAT_ICONS[it.cat]||'📦'}</span><span style="color:${topColor}44;font-size:0.45rem">${it.weight||0}💼</span></div>
+        <div class="inv-item-name">${it.name}</div>
+        ${it.desc?`<div class="inv-item-desc">${it.desc.length>55?it.desc.slice(0,52)+'…':it.desc}</div>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* WIKI */
+function renderWiki(){
+  const el=document.getElementById('wiki-list');
+  el.innerHTML=WIKI_DB.map((w,i)=>`
+    <div class="wiki-card" id="wk-${i}">
+      <div class="wiki-card-hdr" onclick="toggleWiki(${i})">
+        <span class="wiki-card-icon">${w.icon}</span>
+        <span class="wiki-card-title">${w.title}</span>
+        <span class="wiki-card-arrow">›</span>
+      </div>
+      <div class="wiki-card-body">${w.body}</div>
+    </div>
+  `).join('');
+}
+function toggleWiki(i){
+  const card=document.getElementById(`wk-${i}`);
+  card.classList.toggle('open');
+}
+
+/* CHAR MODAL */
+function openCharModal(){
+  const p=P();
+  document.getElementById('mc-name').value=p.char.name||'';
+  document.getElementById('mc-class').value=p.char.class||'';
+  document.getElementById('mc-elem').value=p.char.elem||'';
+  document.getElementById('mc-lv').value=p.char.level||1;
+  document.getElementById('mc-nex').value=p.char.nex||5;
+  document.getElementById('mc-hpmax').value=p.hp.max;
+  document.getElementById('mc-sanmax').value=p.san.max;
+  document.getElementById('mc-pemax').value=p.pe.max;
+  document.getElementById('mc-def').value=p.char.def||12;
+  document.getElementById('mc-org').value=p.char.org||'';
+  document.getElementById('mc-origin').value=p.char.origin||'';
+  openModal('modal-char');
+}
+document.getElementById('logo-btn').onclick=openCharModal;
+
+function saveChar(){
+  const p=P();
+  p.char.name=document.getElementById('mc-name').value.trim()||p.char.name;
+  p.char.class=document.getElementById('mc-class').value.trim();
+  p.char.elem=document.getElementById('mc-elem').value;
+  p.char.level=parseInt(document.getElementById('mc-lv').value)||1;
+  p.char.nex=parseInt(document.getElementById('mc-nex').value)||5;
+  p.char.org=document.getElementById('mc-org').value.trim();
+  p.char.origin=document.getElementById('mc-origin').value.trim();
+  p.char.def=parseInt(document.getElementById('mc-def').value)||12;
+  const nh=parseInt(document.getElementById('mc-hpmax').value);
+  const ns=parseInt(document.getElementById('mc-sanmax').value);
+  const np=parseInt(document.getElementById('mc-pemax').value);
+  if(nh>0){p.hp.max=nh;p.hp.cur=Math.min(p.hp.cur,nh);}
+  if(ns>0){p.san.max=ns;p.san.cur=Math.min(p.san.cur,ns);}
+  if(np>0){p.pe.max=np;p.pe.cur=Math.min(p.pe.cur,np);}
+  closeModal('modal-char');renderAll();toast('Ficha salva!');
+}
+
+/* PHOTO */
+function handlePhoto(e){
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=ev=>{P().photo=ev.target.result;renderBanner();save();};
+  r.readAsDataURL(f);
+}
+document.getElementById('char-photo-wrap'||'photo-wrap');
+// Fix photo-wrap id
+document.addEventListener('DOMContentLoaded',()=>{});
+// Photo click
+document.getElementById('char-banner').querySelector('.char-photo-wrap').id='photo-wrap';
+
+/* DICE */
+const DIE_EMOJI={3:'🎲',4:'🎲',6:'⚄',8:'🎲',10:'🎲',12:'🎲',20:'⚡',100:'💀'};
+function selDie(s){
+  selDieVal=s;
+  document.querySelectorAll('.die-btn').forEach(b=>b.classList.toggle('sel',parseInt(b.dataset.s)===s));
+  document.getElementById('arena-die').textContent=DIE_EMOJI[s]||'🎲';
+  document.getElementById('arena-bg').textContent=DIE_EMOJI[s]||'🎲';
+}
+function rollSelected(){
+  const qty=parseInt(document.getElementById('roll-qty').value)||1;
+  const s=selDieVal;
+  const rolls=Array.from({length:qty},()=>Math.floor(Math.random()*s)+1);
+  const total=rolls.reduce((a,b)=>a+b,0);
+  const isCrit=qty===1&&rolls[0]===s;
+  const isFail=qty===1&&rolls[0]===1;
+  const lbl=qty>1?`${qty}d${s}`:`d${s}`;
+  showDiceResultArena(total,lbl,isCrit?'CRIT':isFail?'FAIL':'');
+  log(`${lbl}: ${qty>1?`[${rolls.join(', ')}] = `:``}${total}${isCrit?' ★ CRÍTICO!':isFail?' ✕ FALHA!':''}`,isCrit?'crit':isFail?'fail':'');
+  addHist(total,s,isCrit,isFail);
+  spawnParticles(total,isCrit?'#ffcc00':isFail?'#ff2244':'#ffffff');
+}
+function rollExpr(){
+  const expr=document.getElementById('expr-inp').value.trim().toLowerCase();
+  if(!expr)return;
+  const m=expr.match(/^(\d*)d(\d+)([+-]\d+)?$/);
+  if(!m){log(`Expressão inválida: ${expr}`,'fail');return;}
+  const count=parseInt(m[1])||1,sides=parseInt(m[2]),bonus=parseInt(m[3])||0;
+  if(count<1||count>20||sides<2){log('Valores fora dos limites.','fail');return;}
+  const rolls=Array.from({length:count},()=>Math.floor(Math.random()*sides)+1);
+  const total=rolls.reduce((a,b)=>a+b,0)+bonus;
+  const isCrit=rolls.every(r=>r===sides);
+  showDiceResultArena(total,expr.toUpperCase(),isCrit?'CRIT':'');
+  log(`${expr.toUpperCase()}: [${rolls.join(', ')}]${bonus?(bonus>0?'+':'')+bonus:''}=${total}${isCrit?' ★':''}`,isCrit?'crit':'');
+  addHist(total,sides,isCrit,false);
+  spawnParticles(total,isCrit?'#ffcc00':'#bb44ff');
+}
+function showDiceResultArena(num,label,type=''){
+  const die=document.getElementById('arena-die'),res=document.getElementById('arena-result');
+  die.classList.remove('rolling');void die.offsetWidth;die.classList.add('rolling');
+  res.className='arena-result show '+(type||'');
+  res.textContent=num;
+  res.style.color=type==='CRIT'?'#ffcc00':type==='FAIL'?'#ff2244':'#ffffff';
+  document.getElementById('arena-result').style.textShadow=`0 0 30px ${res.style.color},0 0 60px ${res.style.color}`;
+  // Arena flash
+  const arena=document.getElementById('dice-arena');
+  arena.style.boxShadow=type==='CRIT'?'inset 0 0 40px rgba(255,204,0,0.4)':type==='FAIL'?'inset 0 0 40px rgba(255,34,68,0.4)':'inset 0 0 20px rgba(255,255,255,0.08)';
+  setTimeout(()=>arena.style.boxShadow='',700);
+  setTimeout(()=>res.classList.remove('show'),3500);
+}
+function addHist(v,s,c,f){
+  diceHist.unshift({v,s,c,f});if(diceHist.length>10)diceHist.pop();
+  const hist=document.getElementById('arena-hist');
+  hist.innerHTML=diceHist.map(h=>`<div class="hist-dot${h.c?' c':h.f?' f':''}" title="d${h.s}: ${h.v}">${h.v}</div>`).join('');
+}
+
+/* LOG */
+function log(msg,type=''){
+  const l=document.getElementById('log-list');
+  const d=document.createElement('div');
+  d.className='log-entry'+(type?` ${type}`:'');
+  const t=new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  d.innerHTML=`<span class="log-time">[${t}]</span>${msg}`;
+  l.insertBefore(d,l.firstChild);
+  while(l.children.length>60)l.removeChild(l.lastChild);
+}
+function clearLog(){document.getElementById('log-list').innerHTML='';log('Log limpo.','info');}
+
+/* NAVIGATION */
+let currentPage='page-ficha';
+function getCurrentPage(){return currentPage;}
+function goPage(id,btn,silent=false){
+  currentPage=id;
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p=>p.style.display='none');
+  const pg=document.getElementById(id);
+  pg.style.display='block';pg.classList.add('active');
+  document.getElementById('content').scrollTop=0;
+  if(btn){
+    document.querySelectorAll('.bnav-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+  // pericias is a sub-page of ficha — keep ficha nav active
+  if(id==='page-pericias'){
+    document.querySelectorAll('.bnav-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelector('.bnav-btn')?.classList.add('active');
+  }
+  // FAB
+  const fabVisible=['page-inv','page-pericias','page-rituais','page-ficha'];
+  document.getElementById('fab').classList.toggle('hidden',!fabVisible.includes(id));
+  if(!silent)log(`→ ${id.replace('page-','').toUpperCase()}`,'info');
+}
+function onFab(){
+  const map={'page-pericias':'modal-skill','page-rituais':'modal-ritual','page-ficha':'modal-char'};
+  if(currentPage==='page-inv'){openAddItem();return;}
+  if(map[currentPage])openModal(map[currentPage]);
+}
+
+/* MODALS */
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.modal-bg').forEach(m=>{
+  m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');});
+});
+
+/* PARTICLES */
+function spawnParticles(val,color){
+  const arena=document.getElementById('dice-arena');
+  const rect=arena.getBoundingClientRect();
+  for(let i=0;i<5;i++){
+    setTimeout(()=>{
+      const p=document.createElement('div');
+      p.className='ptcl';
+      p.textContent=i%3===0?val:i%3===1?'✦':'★';
+      const r=(Math.random()-0.5)*60+'deg';
+      p.style.cssText=`left:${rect.left+Math.random()*rect.width}px;top:${rect.top+Math.random()*rect.height}px;color:${color};text-shadow:0 0 8px ${color};font-size:${0.7+Math.random()*0.5}rem;--r:${r};animation-duration:${0.7+Math.random()*0.5}s;`;
+      document.body.appendChild(p);setTimeout(()=>p.remove(),1200);
+    },i*70);
+  }
+}
+
+/* TOAST */
+let toastT;
+function toast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.classList.add('on');
+  clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('on'),2200);
+}
+
+/* ══════════════════════════════════════════
+   INIT
+══════════════════════════════════════════ */
+function init(){
+  load();
+  selDie(20);
+  // Init pages hidden
+  document.querySelectorAll('.page').forEach(p=>{p.style.display='none';p.classList.remove('active');});
+  document.getElementById('page-ficha').style.display='block';
+  document.getElementById('page-ficha').classList.add('active');
+  renderAll();
+  log('Sistema iniciado. A Membrana está instável.','info');
+  setTimeout(()=>log('Toque nos atributos para testar · Toque nos números de status para editar','info'),1200);
+}
+window.addEventListener('load',init);
+document.addEventListener('visibilitychange',()=>{if(document.hidden)save();});
+
+// Enter key in modals
+document.addEventListener('keydown',e=>{
+  if(e.key!=='Enter'||e.target.tagName==='TEXTAREA')return;
+  const open=document.querySelector('.modal-bg.open');if(!open)return;
+  const id=open.id;
+  if(id==='modal-char')saveChar();
+  if(id==='modal-skill')addSkill();
+  if(id==='modal-item')saveItem();
+  if(id==='modal-stat')applyStatEdit();
+  if(id==='modal-new-char')createChar();
+  if(id==='modal-ritual')addCustomRitual();
+});
+
+// Swipe to navigate (mobile)
+let touchStartX=0;
+document.getElementById('content').addEventListener('touchstart',e=>touchStartX=e.touches[0].clientX,{passive:true});
+document.getElementById('content').addEventListener('touchend',e=>{
+  const diff=e.changedTouches[0].clientX-touchStartX;
+  if(Math.abs(diff)<80)return;
+  const pages=['page-ficha','page-dados','page-rituais','page-inv','page-wiki'];
+  const btns=document.querySelectorAll('.bnav-btn');
+  const ci=pages.indexOf(currentPage);
+  if(diff<0&&ci<pages.length-1){goPage(pages[ci+1],btns[ci+1],true);}
+  else if(diff>0&&ci>0){goPage(pages[ci-1],btns[ci-1],true);}
+},{passive:true});
+</script>
 </body>
 </html>
