@@ -60,7 +60,7 @@ body{
 #app{
   position:relative;z-index:10;
   display:flex;flex-direction:column;
-  height:100%;height:100dvh;
+  height:100%;height:var(--app-h,100dvh);
 }
 
 /* ── TOP BAR ── */
@@ -131,7 +131,6 @@ body{
   -webkit-overflow-scrolling:touch;
   scrollbar-width:none;
   padding-bottom:calc(70px + var(--safe-bottom));
-  position:relative;
 }
 #content::-webkit-scrollbar{display:none;}
 
@@ -168,12 +167,7 @@ body{
 /* ══════════════════════════════════════════
    PAGE SECTIONS
 ══════════════════════════════════════════ */
-.page{
-  display:none;padding:12px;
-  position:absolute;top:0;left:0;right:0;
-  min-height:100%;
-  box-sizing:border-box;
-}
+.page{display:none;padding:12px;}
 .page.active{display:block;}
 
 /* ══════════════════════════════════════════
@@ -822,7 +816,7 @@ body{
 .modal-bg{
   position:fixed;inset:0;background:rgba(0,0,0,0.88);
   display:none;align-items:flex-end;justify-content:center;
-  z-index:200;
+  z-index:9999;
 }
 .modal-bg.open{display:flex;}
 .modal-sheet{
@@ -922,7 +916,7 @@ textarea{min-height:70px;resize:vertical;}
   transform:translateX(-50%) translateY(8px);
   background:rgba(10,10,20,0.96);border:1px solid var(--border2);
   padding:8px 20px;border-radius:30px;font-size:0.7rem;letter-spacing:1px;
-  z-index:500;opacity:0;transition:all 0.3s;pointer-events:none;white-space:nowrap;
+  z-index:99999;opacity:0;transition:all 0.3s;pointer-events:none;white-space:nowrap;
 }
 #toast.on{opacity:1;transform:translateX(-50%) translateY(0);}
 
@@ -1131,7 +1125,7 @@ textarea{min-height:70px;resize:vertical;}
 /* ══════════════════════════════════════════
    PAGE TRANSITIONS
 ══════════════════════════════════════════ */
-.page{display:none;padding:12px;position:absolute;top:0;left:0;right:0;min-height:100%;box-sizing:border-box;}
+.page{display:none;padding:12px;}
 .page.page-enter{animation:pageIn 0.22s cubic-bezier(.2,0,.3,1) forwards;}
 .page.page-exit{animation:pageOut 0.18s cubic-bezier(.4,0,1,1) forwards;}
 @keyframes pageIn{
@@ -1292,7 +1286,7 @@ body{
 #app{
   position:relative;z-index:10;
   display:flex;flex-direction:column;
-  height:100%;height:100dvh;
+  height:100%;height:var(--app-h,100dvh);
 }
 
 /* ── TOP BAR ── */
@@ -1357,14 +1351,7 @@ body{
 #add-char-btn:hover{color:var(--text);}
 
 /* ── SCROLLABLE CONTENT ── */
-#content{
-  flex:1;overflow-y:auto;overflow-x:hidden;
-  overscroll-behavior-y:contain;
-  -webkit-overflow-scrolling:touch;
-  scrollbar-width:none;
-  padding-bottom:calc(70px + var(--safe-bottom));
-}
-#content::-webkit-scrollbar{display:none;}
+
 
 /* ── BOTTOM NAV ── */
 #bottomnav{
@@ -1399,7 +1386,7 @@ body{
 /* ══════════════════════════════════════════
    PAGE SECTIONS
 ══════════════════════════════════════════ */
-.page{display:none;padding:12px;position:absolute;top:0;left:0;right:0;min-height:100%;box-sizing:border-box;} /* transitions via .page-enter/.page-exit */
+.page{display:none;padding:12px;} /* transitions via .page-enter/.page-exit */
 .page.active{display:block;}
 
 /* ══════════════════════════════════════════
@@ -2038,7 +2025,7 @@ body{
 .modal-bg{
   position:fixed;inset:0;background:rgba(0,0,0,0.88);
   display:none;align-items:flex-end;justify-content:center;
-  z-index:200;
+  z-index:9999;
 }
 .modal-bg.open{display:flex;}
 .modal-sheet{
@@ -2138,7 +2125,7 @@ textarea{min-height:70px;resize:vertical;}
   transform:translateX(-50%) translateY(8px);
   background:rgba(10,10,20,0.96);border:1px solid var(--border2);
   padding:8px 20px;border-radius:30px;font-size:0.7rem;letter-spacing:1px;
-  z-index:500;opacity:0;transition:all 0.3s;pointer-events:none;white-space:nowrap;
+  z-index:99999;opacity:0;transition:all 0.3s;pointer-events:none;white-space:nowrap;
 }
 #toast.on{opacity:1;transform:translateX(-50%) translateY(0);}
 
@@ -2347,7 +2334,7 @@ textarea{min-height:70px;resize:vertical;}
 /* ══════════════════════════════════════════
    PAGE TRANSITIONS
 ══════════════════════════════════════════ */
-.page{display:none;padding:12px;position:absolute;top:0;left:0;right:0;min-height:100%;box-sizing:border-box;}
+.page{display:none;padding:12px;}
 .page.page-enter{animation:pageIn 0.22s cubic-bezier(.2,0,.3,1) forwards;}
 .page.page-exit{animation:pageOut 0.18s cubic-bezier(.4,0,1,1) forwards;}
 @keyframes pageIn{
@@ -2793,6 +2780,24 @@ textarea{min-height:70px;resize:vertical;}
 .it-photo-preview-wrap{position:relative;width:100%;height:110px;border-radius:var(--radius);overflow:hidden;display:none;margin-bottom:8px;}
 .it-photo-preview-wrap img{width:100%;height:100%;object-fit:cover;display:block;}
 .it-photo-preview-clear{position:absolute;top:5px;right:5px;background:rgba(0,0,0,0.8);border:1px solid rgba(255,255,255,0.15);color:#fff;font-size:0.55rem;padding:3px 8px;border-radius:3px;cursor:pointer;}
+
+/* ══ WEBINTOAPP / PWA COMPAT ══ */
+/* Prevent long-press context menus */
+body { -webkit-touch-callout:none; }
+/* Remove 300ms tap delay on all interactive elements */
+a,button,input,select,textarea,[onclick],[role="button"] {
+  touch-action:manipulation;
+}
+/* Prevent text selection on tap/swipe */
+.bnav-btn,.fab,.pc-btn,.mbtn,.cf,.inv-card,.ritual-card,.wiki-card,
+.skill-row,.ability-card,.char-tab-btn,.arena-die-btn {
+  -webkit-user-select:none;user-select:none;
+}
+/* Ensure fixed elements don't shift on scroll in WebView */
+#topbar,#bottomnav,#toast,.modal-bg,.fab {
+  -webkit-transform:translateZ(0);transform:translateZ(0);
+  will-change:transform;
+}
 </style>
 </head>
 <body>
@@ -4722,21 +4727,17 @@ function goPage(id,btn,silent=false){
   const prev=document.querySelector('.page.active');
   if(prev&&prev.id===id)return;
   currentPage=id;
-  // Exit animation on current
+  // Hide prev page immediately — prevents height stacking in scroll container
   if(prev){
-    prev.classList.add('page-exit');
-    setTimeout(()=>{prev.classList.remove('active','page-exit');},180);
+    prev.style.display='none';
+    prev.classList.remove('active');
   }
-  // Enter new page
+  // Enter new page with animation
   const pg=document.getElementById(id);
   pg.style.display='block';
   pg.classList.add('active','page-enter');
   setTimeout(()=>pg.classList.remove('page-enter'),250);
-  // Reset scroll: with absolute pages, scroll the container
-  const _c=document.getElementById('content');
-  _c.scrollTop=0;
-  // Also ensure prev page is immediately hidden to prevent height stacking
-  if(prev) prev.style.display='none';
+  document.getElementById('content').scrollTop=0;
   if(btn){
     document.querySelectorAll('.bnav-btn').forEach(b=>b.classList.remove('active'));
     btn.classList.add('active');
@@ -5679,6 +5680,14 @@ async function aiGenerateItemArt(){
   finally{btn.classList.remove('loading');btn.querySelector('.it-photo-ai-label').innerHTML='GERAR<br>ARTE IA';}
 }
 
+function _fixDvh(){
+  // WebIntoApp / older WebView may not support dvh units
+  // Manually set --app-height CSS variable as fallback
+  var h=window.innerHeight;
+  document.documentElement.style.setProperty('--app-h', h+'px');
+}
+_fixDvh();
+window.addEventListener('resize',_fixDvh);
 function init(){
   load();
   selDie(20);
