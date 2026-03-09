@@ -127,10 +127,11 @@ body{
 /* ── SCROLLABLE CONTENT ── */
 #content{
   flex:1;overflow-y:auto;overflow-x:hidden;
-  overscroll-behavior-y:contain;
+  overscroll-behavior:none;
   -webkit-overflow-scrolling:touch;
   scrollbar-width:none;
   padding-bottom:calc(70px + var(--safe-bottom));
+  position:relative;
 }
 #content::-webkit-scrollbar{display:none;}
 
@@ -167,7 +168,12 @@ body{
 /* ══════════════════════════════════════════
    PAGE SECTIONS
 ══════════════════════════════════════════ */
-.page{display:none;padding:12px;} /* transitions via .page-enter/.page-exit */
+.page{
+  display:none;padding:12px;
+  position:absolute;top:0;left:0;right:0;
+  min-height:100%;
+  box-sizing:border-box;
+}
 .page.active{display:block;}
 
 /* ══════════════════════════════════════════
@@ -724,82 +730,7 @@ body{
 /* ── INVENTORY LIST ── */
 .inv-grid{display:flex;flex-direction:column;gap:6px;}
 
-.inv-item{
-  background:rgba(10,10,18,0.96);
-  border:1px solid var(--border);
-  border-radius:6px;
-  position:relative;
-  overflow:hidden;
-  cursor:pointer;
-  -webkit-tap-highlight-color:transparent;
-  display:flex;flex-direction:row;align-items:stretch;
-  min-height:80px;
-  transition:transform 0.12s,box-shadow 0.12s;
-}
-.inv-item:active{transform:scale(0.985);box-shadow:none;}
 
-/* colored left accent bar */
-.inv-item-bar{
-  width:3px;flex-shrink:0;
-  background:var(--ic,#888);
-  opacity:0.7;
-}
-
-/* photo square — left side */
-.inv-item-thumb{
-  width:80px;flex-shrink:0;
-  position:relative;overflow:hidden;
-  background:rgba(0,0,0,0.5);
-}
-.inv-item-thumb img{
-  width:100%;height:100%;object-fit:cover;display:block;
-}
-.inv-item-thumb-empty{
-  width:100%;height:100%;
-  display:flex;align-items:center;justify-content:center;
-  font-size:1.6rem;opacity:0.25;
-}
-.inv-item-thumb-overlay{
-  position:absolute;inset:0;
-  background:linear-gradient(to right,transparent 70%,rgba(10,10,18,0.6));
-  pointer-events:none;
-}
-
-/* text content */
-.inv-item-body{
-  flex:1;padding:10px 10px 10px 10px;
-  display:flex;flex-direction:column;justify-content:center;
-  min-width:0;
-}
-.inv-item-top{
-  display:flex;align-items:center;gap:6px;margin-bottom:4px;
-}
-.inv-item-cat-badge{
-  font-size:0.4rem;letter-spacing:1.5px;padding:2px 6px;
-  border-radius:10px;border:1px solid var(--ic,#888);
-  color:var(--ic,#888);background:rgba(0,0,0,0.4);
-  flex-shrink:0;opacity:0.8;
-}
-.inv-item-wt{
-  font-size:0.42rem;color:var(--dim);margin-left:auto;flex-shrink:0;
-}
-.inv-item-name{
-  font-size:0.85rem;font-weight:700;
-  color:#fff;line-height:1.2;margin-bottom:5px;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-}
-.inv-item-desc{
-  font-size:0.58rem;color:rgba(255,255,255,0.38);
-  line-height:1.5;
-  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
-  overflow:hidden;
-}
-.inv-item-desc.ai-pending{
-  color:rgba(136,0,255,0.45);
-  font-style:italic;
-}
-/* glow on hover/active by category */
-.inv-item:active .inv-item-bar{opacity:1;}
 
 /* ══════════════════════════════════════════
    PAGE: WIKI
@@ -1200,7 +1131,7 @@ textarea{min-height:70px;resize:vertical;}
 /* ══════════════════════════════════════════
    PAGE TRANSITIONS
 ══════════════════════════════════════════ */
-.page{display:none;padding:12px;}
+.page{display:none;padding:12px;position:absolute;top:0;left:0;right:0;min-height:100%;box-sizing:border-box;}
 .page.page-enter{animation:pageIn 0.22s cubic-bezier(.2,0,.3,1) forwards;}
 .page.page-exit{animation:pageOut 0.18s cubic-bezier(.4,0,1,1) forwards;}
 @keyframes pageIn{
@@ -1468,7 +1399,7 @@ body{
 /* ══════════════════════════════════════════
    PAGE SECTIONS
 ══════════════════════════════════════════ */
-.page{display:none;padding:12px;} /* transitions via .page-enter/.page-exit */
+.page{display:none;padding:12px;position:absolute;top:0;left:0;right:0;min-height:100%;box-sizing:border-box;} /* transitions via .page-enter/.page-exit */
 .page.active{display:block;}
 
 /* ══════════════════════════════════════════
@@ -2005,18 +1936,6 @@ body{
 /* ══════════════════════════════════════════
    PAGE: INVENTÁRIO
 ══════════════════════════════════════════ */
-.inv-weight{
-  background:var(--surface);border:1px solid var(--border);
-  border-radius:var(--radius);padding:12px;
-  display:flex;align-items:center;gap:10px;
-  margin-bottom:10px;
-}
-.inv-wt-label{font-size:0.6rem;color:var(--dim);letter-spacing:1px;flex-shrink:0;}
-.inv-wt-bar{flex:1;height:6px;background:rgba(0,0,0,0.6);border-radius:3px;overflow:hidden;}
-.inv-wt-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--energia),var(--conhecimento-l));transition:width 0.4s;}
-.inv-wt-fill.over{background:linear-gradient(90deg,var(--sangue),var(--sangue-l));}
-.inv-wt-num{font-size:0.65rem;color:var(--dim);flex-shrink:0;}
-.inv-warn{font-size:0.6rem;color:var(--sangue-l);flex-shrink:0;}
 
 .cat-filters{display:flex;gap:5px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px;margin-bottom:10px;}
 .cat-filters::-webkit-scrollbar{display:none;}
@@ -2428,7 +2347,7 @@ textarea{min-height:70px;resize:vertical;}
 /* ══════════════════════════════════════════
    PAGE TRANSITIONS
 ══════════════════════════════════════════ */
-.page{display:none;padding:12px;}
+.page{display:none;padding:12px;position:absolute;top:0;left:0;right:0;min-height:100%;box-sizing:border-box;}
 .page.page-enter{animation:pageIn 0.22s cubic-bezier(.2,0,.3,1) forwards;}
 .page.page-exit{animation:pageOut 0.18s cubic-bezier(.4,0,1,1) forwards;}
 @keyframes pageIn{
@@ -2844,6 +2763,36 @@ textarea{min-height:70px;resize:vertical;}
   border-radius:var(--radius);padding:12px;
   margin-top:10px;
 }
+
+/* ══ INVENTORY CARDS ══ */
+.inv-grid{display:flex;flex-direction:column;gap:8px;}
+.inv-card{background:rgba(8,8,16,0.97);border:1px solid rgba(255,255,255,0.06);border-radius:8px;overflow:hidden;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform 0.12s;position:relative;}
+.inv-card:active{transform:scale(0.983);}
+.inv-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--ic,#555);opacity:0.85;z-index:2;}
+.inv-card-photo-wrap{width:100%;height:120px;position:relative;overflow:hidden;background:rgba(0,0,0,0.7);}
+.inv-card-photo-wrap img{width:100%;height:100%;object-fit:cover;display:block;}
+.inv-card-photo-empty{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:2.8rem;background:linear-gradient(135deg,rgba(0,0,0,0.8),var(--ic-glow,rgba(60,60,80,0.4)));}
+.inv-card-photo-gradient{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 30%,rgba(8,8,16,0.6) 70%,rgba(8,8,16,0.96) 100%);pointer-events:none;}
+.inv-card-cat-tag{position:absolute;top:8px;left:8px;font-size:0.38rem;letter-spacing:2px;padding:3px 8px;border-radius:20px;background:rgba(0,0,0,0.72);border:1px solid var(--ic,#888);color:var(--ic,#888);backdrop-filter:blur(4px);}
+.inv-card-wt-tag{position:absolute;top:8px;right:8px;font-size:0.4rem;padding:3px 8px;border-radius:20px;background:rgba(0,0,0,0.72);border:1px solid rgba(255,255,255,0.08);color:rgba(255,255,255,0.4);backdrop-filter:blur(4px);}
+.inv-card-ai-tag{position:absolute;bottom:8px;right:8px;font-size:0.35rem;letter-spacing:2px;padding:2px 6px;border-radius:10px;background:rgba(136,0,255,0.25);border:1px solid rgba(136,0,255,0.4);color:var(--energia-l);}
+.inv-card-body{padding:10px 12px 12px;}
+.inv-card-name{font-family:'Cinzel',serif;font-size:0.95rem;font-weight:700;color:#fff;line-height:1.2;margin-bottom:6px;}
+.inv-card-divider{height:1px;background:linear-gradient(to right,var(--ic,#555) 0%,rgba(255,255,255,0.04) 60%,transparent 100%);margin-bottom:7px;}
+.inv-card-desc{font-size:0.6rem;color:rgba(255,255,255,0.45);line-height:1.6;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+.inv-card-desc.ai-loading{color:rgba(136,0,255,0.55);font-style:italic;animation:aiPulse 1.8s ease-in-out infinite;}
+@keyframes aiPulse{0%,100%{opacity:0.4;}50%{opacity:1;}}
+.it-photo-actions{display:flex;gap:6px;margin-bottom:8px;}
+.it-photo-upload-btn{flex:1;height:110px;border:2px dashed rgba(255,187,0,0.25);border-radius:var(--radius);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;background:rgba(0,0,0,0.4);-webkit-tap-highlight-color:transparent;}
+.it-photo-upload-btn:active{border-color:rgba(255,187,0,0.5);}
+.it-photo-ai-btn{width:80px;flex-shrink:0;height:110px;border:2px dashed rgba(136,0,255,0.35);border-radius:var(--radius);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer;background:rgba(136,0,255,0.06);color:var(--energia-l);-webkit-tap-highlight-color:transparent;transition:all 0.15s;font-family:'Share Tech Mono';}
+.it-photo-ai-btn:active{background:rgba(136,0,255,0.18);}
+.it-photo-ai-btn.loading{pointer-events:none;animation:artPulse 1.2s ease-in-out infinite;}
+@keyframes artPulse{0%,100%{opacity:0.45;}50%{opacity:1;}}
+.it-photo-ai-label{font-size:0.38rem;letter-spacing:2px;text-align:center;line-height:1.4;}
+.it-photo-preview-wrap{position:relative;width:100%;height:110px;border-radius:var(--radius);overflow:hidden;display:none;margin-bottom:8px;}
+.it-photo-preview-wrap img{width:100%;height:100%;object-fit:cover;display:block;}
+.it-photo-preview-clear{position:absolute;top:5px;right:5px;background:rgba(0,0,0,0.8);border:1px solid rgba(255,255,255,0.15);color:#fff;font-size:0.55rem;padding:3px 8px;border-radius:3px;cursor:pointer;}
 </style>
 </head>
 <body>
@@ -3503,19 +3452,21 @@ textarea{min-height:70px;resize:vertical;}
     <input type="hidden" id="it-edit-idx" value="-1">
 
     <!-- Foto do item -->
-    <div id="it-photo-wrap" onclick="document.getElementById('it-photo-input').click()" style="
-      width:100%;height:120px;border:2px dashed rgba(255,187,0,0.3);border-radius:var(--radius);
-      display:flex;flex-direction:column;align-items:center;justify-content:center;
-      cursor:pointer;overflow:hidden;position:relative;margin-bottom:8px;background:rgba(0,0,0,0.4);
-      transition:border-color 0.2s;">
-      <div id="it-photo-ph" style="display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--dim);font-size:0.65rem;letter-spacing:1px;">
-        <span style="font-size:1.8rem">📷</span>FOTO DO ITEM (opcional)
+    <div id="it-photo-preview-wrap" class="it-photo-preview-wrap">
+      <img id="it-photo-preview" src="" alt="">
+      <button class="it-photo-preview-clear" onclick="clearItemPhoto(event)">✕ remover</button>
+    </div>
+    <div class="it-photo-actions" id="it-photo-actions">
+      <div class="it-photo-upload-btn" onclick="document.getElementById('it-photo-input').click()">
+        <span style="font-size:1.6rem;margin-bottom:4px">📷</span>
+        <span style="font-size:0.5rem;letter-spacing:1px;color:var(--dim)">FOTO DO ITEM</span>
       </div>
-      <img id="it-photo-preview" src="" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">
-      <button id="it-photo-clear" onclick="clearItemPhoto(event)" style="
-        display:none;position:absolute;top:6px;right:6px;
-        background:rgba(0,0,0,0.8);border:1px solid rgba(255,255,255,0.2);
-        color:#fff;font-size:0.6rem;padding:3px 7px;border-radius:3px;cursor:pointer;z-index:2;">✕</button>
+      <button class="it-photo-ai-btn" id="it-art-btn" onclick="aiGenerateItemArt()">
+        <svg viewBox="0 0 24 24" fill="none" width="22" height="22">
+          <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+        </svg>
+        <span class="it-photo-ai-label">GERAR<br>ARTE IA</span>
+      </button>
     </div>
     <input type="file" id="it-photo-input" accept="image/*" onchange="handleItemPhoto(event)" style="display:none;">
 
@@ -4403,28 +4354,25 @@ function switchRitTab(i,btn){
 /* INVENTORY */
 let _itemPhotoBase64=null; // temp photo while editing
 
+function _setItemPhotoPreview(src){
+  _itemPhotoBase64=src;
+  document.getElementById('it-photo-preview').src=src;
+  document.getElementById('it-photo-preview-wrap').style.display='block';
+  document.getElementById('it-photo-actions').style.display='none';
+}
 function handleItemPhoto(e){
   const f=e.target.files[0];if(!f)return;
   const r=new FileReader();
-  r.onload=ev=>{
-    _itemPhotoBase64=ev.target.result;
-    const preview=document.getElementById('it-photo-preview');
-    const ph=document.getElementById('it-photo-ph');
-    const clr=document.getElementById('it-photo-clear');
-    preview.src=_itemPhotoBase64;preview.style.display='block';
-    ph.style.display='none';clr.style.display='block';
-    document.getElementById('it-photo-wrap').style.borderColor='var(--conhecimento-l)';
-  };
+  r.onload=ev=>{ _setItemPhotoPreview(ev.target.result); };
   r.readAsDataURL(f);
 }
 function clearItemPhoto(e){
-  e.stopPropagation();
+  if(e)e.stopPropagation();
   _itemPhotoBase64=null;
-  document.getElementById('it-photo-preview').style.display='none';
-  document.getElementById('it-photo-ph').style.display='flex';
-  document.getElementById('it-photo-clear').style.display='none';
+  document.getElementById('it-photo-preview').src='';
+  document.getElementById('it-photo-preview-wrap').style.display='none';
+  document.getElementById('it-photo-actions').style.display='flex';
   document.getElementById('it-photo-input').value='';
-  document.getElementById('it-photo-wrap').style.borderColor='rgba(255,187,0,0.3)';
 }
 function openAddItem(){
   _itemPhotoBase64=null;
@@ -4434,11 +4382,9 @@ function openAddItem(){
   document.getElementById('it-cat').value='geral';
   document.getElementById('it-wt').value='';
   document.getElementById('it-desc').value='';
-  document.getElementById('it-photo-preview').style.display='none';
-  document.getElementById('it-photo-ph').style.display='flex';
-  document.getElementById('it-photo-clear').style.display='none';
+  document.getElementById('it-photo-preview-wrap').style.display='none';
+  document.getElementById('it-photo-actions').style.display='flex';
   document.getElementById('it-photo-input').value='';
-  document.getElementById('it-photo-wrap').style.borderColor='rgba(255,187,0,0.3)';
   openModal('modal-item');
 }
 function editItemFromDetail(){
@@ -4455,17 +4401,7 @@ function openEditItem(i){
   document.getElementById('it-cat').value=it.cat||'geral';
   document.getElementById('it-wt').value=it.weight||1;
   document.getElementById('it-desc').value=it.desc||'';
-  const preview=document.getElementById('it-photo-preview');
-  const ph=document.getElementById('it-photo-ph');
-  const clr=document.getElementById('it-photo-clear');
-  if(it.photo){
-    preview.src=it.photo;preview.style.display='block';
-    ph.style.display='none';clr.style.display='block';
-    document.getElementById('it-photo-wrap').style.borderColor='var(--conhecimento-l)';
-  } else {
-    preview.style.display='none';ph.style.display='flex';clr.style.display='none';
-    document.getElementById('it-photo-wrap').style.borderColor='rgba(255,187,0,0.3)';
-  }
+  if(it.photo){ _setItemPhotoPreview(it.photo); } else { clearItemPhoto(null); }
   openModal('modal-item');
 }
 function saveItem(){
@@ -4553,26 +4489,29 @@ function renderInventory(){
     const wt=it.weight||0;
     const hasPhoto=!!it.photo;
     const descText=it.desc||'';
-    const isPending=!descText&&!it._aiDescDone;
-    const descHtml=isPending
-      ? `<div class="inv-item-desc ai-pending" id="aidesc-${ri}">✦ gerando descrição…</div>`
-      : descText
-        ? `<div class="inv-item-desc">${descText.length>90?descText.slice(0,88)+'…':descText}</div>`
-        : `<div class="inv-item-desc" style="opacity:0.2">Sem descrição.</div>`;
+    const isLoading=!descText&&!it._aiDescDone;
+    const isAI=!!it._aiDescDone&&!!descText;
 
-    return `<div class="inv-item" style="--ic:${color}" onclick="openItemDetail(${ri})">
-      <div class="inv-item-bar"></div>
-      <div class="inv-item-thumb">
-        ${hasPhoto
-          ? `<img src="${it.photo}" alt="${it.name}" loading="lazy"><div class="inv-item-thumb-overlay"></div>`
-          : `<div class="inv-item-thumb-empty">${icon}</div>`}
+    const photoSection=hasPhoto
+      ? `<img src="${it.photo}" alt="${it.name}" loading="lazy"><div class="inv-card-photo-gradient"></div>`
+      : `<div class="inv-card-photo-empty" style="--ic-glow:${color}22">${icon}</div><div class="inv-card-photo-gradient"></div>`;
+
+    const descHtml=isLoading
+      ? `<div class="inv-card-desc ai-loading" id="aidesc-${ri}">✦ gerando descrição com IA…</div>`
+      : descText
+        ? `<div class="inv-card-desc">${descText}</div>`
+        : `<div class="inv-card-desc" style="opacity:0.18;font-style:italic">Sem descrição.</div>`;
+
+    return `<div class="inv-card" style="--ic:${color}" onclick="openItemDetail(${ri})">
+      <div class="inv-card-photo-wrap">
+        ${photoSection}
+        <span class="inv-card-cat-tag">${icon} ${catName}</span>
+        <span class="inv-card-wt-tag">${wt}💼 espaço${wt!==1?'s':''}</span>
+        ${isAI?'<span class="inv-card-ai-tag">✦IA</span>':''}
       </div>
-      <div class="inv-item-body">
-        <div class="inv-item-top">
-          <span class="inv-item-cat-badge">${catName}</span>
-          <span class="inv-item-wt">${wt} espaço${wt!==1?'s':''} 💼</span>
-        </div>
-        <div class="inv-item-name">${it.name}</div>
+      <div class="inv-card-body">
+        <div class="inv-card-name">${it.name}</div>
+        <div class="inv-card-divider"></div>
         ${descHtml}
       </div>
     </div>`;
@@ -4786,14 +4725,18 @@ function goPage(id,btn,silent=false){
   // Exit animation on current
   if(prev){
     prev.classList.add('page-exit');
-    setTimeout(()=>{prev.style.display='none';prev.classList.remove('active','page-exit');},160);
+    setTimeout(()=>{prev.classList.remove('active','page-exit');},180);
   }
   // Enter new page
   const pg=document.getElementById(id);
   pg.style.display='block';
   pg.classList.add('active','page-enter');
   setTimeout(()=>pg.classList.remove('page-enter'),250);
-  document.getElementById('content').scrollTop=0;
+  // Reset scroll: with absolute pages, scroll the container
+  const _c=document.getElementById('content');
+  _c.scrollTop=0;
+  // Also ensure prev page is immediately hidden to prevent height stacking
+  if(prev) prev.style.display='none';
   if(btn){
     document.querySelectorAll('.bnav-btn').forEach(b=>b.classList.remove('active'));
     btn.classList.add('active');
@@ -5707,9 +5650,35 @@ NOTAS DO JOGADOR:\n${notes.substring(0,500)}`;
     btn.textContent='✦ RESUMIR SESSÃO'; btn.disabled=false;
   }
 }
-/* ══════════════════════════════════════════
-   INIT
-══════════════════════════════════════════ */
+
+/* ══════════════════════════════════════
+   AI IMAGE GENERATION — Pollinations.ai (free, no key needed)
+══════════════════════════════════════ */
+
+async function aiGenerateItemArt(){
+  var name=document.getElementById('it-name').value.trim();
+  var desc=document.getElementById('it-desc').value.trim();
+  var aiD=document.getElementById('ai-item-desc').value.trim();
+  var cat=document.getElementById('it-cat').value||'geral';
+  var subj=name||aiD||desc;
+  if(!subj){toast('Digite o nome do item primeiro!');return;}
+  var btn=document.getElementById('it-art-btn');
+  btn.classList.add('loading');
+  btn.querySelector('.it-photo-ai-label').textContent='GERANDO...';
+  var st={arma:'dark fantasy weapon gothic blood-stained',protecao:'occult armor protective runes glow',consumivel:'sinister paranormal potion eerie glow',ocultismo:'cursed eldritch ancient forbidden artifact',geral:'mysterious paranormal dark ominous object'};
+  var prompt=encodeURIComponent(subj+', '+(st[cat]||st.geral)+', dark horror RPG art, dramatic lighting, black background, detailed, no text, no people');
+  var url='https://image.pollinations.ai/prompt/'+prompt+'?width=512&height=512&seed='+Math.floor(Math.random()*99999)+'&nologo=true&model=flux-schnell';
+  try{
+    var resp=await fetch(url);
+    if(!resp.ok)throw new Error('HTTP '+resp.status);
+    var blob=await resp.blob();
+    var b64=await new Promise(function(res,rej){var fr=new FileReader();fr.onload=function(){res(fr.result);};fr.onerror=rej;fr.readAsDataURL(blob);});
+    _setItemPhotoPreview(b64);
+    toast('Arte gerada pela IA!');
+  }catch(err){toast('Erro: '+err.message.substring(0,40));}
+  finally{btn.classList.remove('loading');btn.querySelector('.it-photo-ai-label').innerHTML='GERAR<br>ARTE IA';}
+}
+
 function init(){
   load();
   selDie(20);
