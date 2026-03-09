@@ -714,42 +714,92 @@ body{
 .cat-filters{display:flex;gap:5px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px;margin-bottom:10px;}
 .cat-filters::-webkit-scrollbar{display:none;}
 .cf{
-  flex-shrink:0;padding:4px 10px;border:1px solid var(--border);
-  border-radius:20px;font-size:0.55rem;color:var(--dim);
+  flex-shrink:0;padding:5px 12px;border:1px solid var(--border);
+  border-radius:20px;font-size:0.52rem;color:var(--dim);
   background:none;cursor:pointer;transition:all 0.15s;white-space:nowrap;
+  letter-spacing:0.5px;
 }
-.cf.on{border-color:var(--border2);color:var(--text);}
+.cf.on{border-color:var(--border2);color:var(--text);background:rgba(255,255,255,0.04);}
 
-.inv-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+/* ── INVENTORY LIST ── */
+.inv-grid{display:flex;flex-direction:column;gap:6px;}
+
 .inv-item{
-  background:var(--surface);border:1px solid var(--border);
-  border-radius:var(--radius);
-  position:relative;transition:all 0.2s;
-  border-top:2px solid transparent;
+  background:rgba(10,10,18,0.96);
+  border:1px solid var(--border);
+  border-radius:6px;
+  position:relative;
   overflow:hidden;
   cursor:pointer;
   -webkit-tap-highlight-color:transparent;
-  display:flex;flex-direction:column;
+  display:flex;flex-direction:row;align-items:stretch;
+  min-height:80px;
+  transition:transform 0.12s,box-shadow 0.12s;
 }
-.inv-item:active{transform:scale(0.96);opacity:0.9;}
-.inv-item-img{
-  width:100%;height:90px;overflow:hidden;flex-shrink:0;position:relative;
+.inv-item:active{transform:scale(0.985);box-shadow:none;}
+
+/* colored left accent bar */
+.inv-item-bar{
+  width:3px;flex-shrink:0;
+  background:var(--ic,#888);
+  opacity:0.7;
 }
-.inv-item-img img{width:100%;height:100%;object-fit:cover;display:block;}
-.inv-item-img-overlay{
+
+/* photo square — left side */
+.inv-item-thumb{
+  width:80px;flex-shrink:0;
+  position:relative;overflow:hidden;
+  background:rgba(0,0,0,0.5);
+}
+.inv-item-thumb img{
+  width:100%;height:100%;object-fit:cover;display:block;
+}
+.inv-item-thumb-empty{
+  width:100%;height:100%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.6rem;opacity:0.25;
+}
+.inv-item-thumb-overlay{
   position:absolute;inset:0;
-  background:linear-gradient(to bottom,transparent 50%,rgba(5,5,8,0.8));
+  background:linear-gradient(to right,transparent 70%,rgba(10,10,18,0.6));
+  pointer-events:none;
 }
-.inv-item-body{padding:10px;flex:1;}
-.inv-item-cat{font-size:0.5rem;color:var(--dim);margin-bottom:4px;display:flex;justify-content:space-between;align-items:center;}
-.inv-item-name{font-size:0.82rem;font-weight:bold;line-height:1.3;margin-bottom:3px;color:var(--text);}
-.inv-item-desc{font-size:0.6rem;color:var(--dim);line-height:1.4;}
-.inv-item-del{
-  position:absolute;top:5px;right:6px;
-  background:none;border:none;color:rgba(255,255,255,0.12);
-  cursor:pointer;font-size:0.7rem;padding:2px;
+
+/* text content */
+.inv-item-body{
+  flex:1;padding:10px 10px 10px 10px;
+  display:flex;flex-direction:column;justify-content:center;
+  min-width:0;
 }
-.inv-item-del:active{color:var(--sangue-l);}
+.inv-item-top{
+  display:flex;align-items:center;gap:6px;margin-bottom:4px;
+}
+.inv-item-cat-badge{
+  font-size:0.4rem;letter-spacing:1.5px;padding:2px 6px;
+  border-radius:10px;border:1px solid var(--ic,#888);
+  color:var(--ic,#888);background:rgba(0,0,0,0.4);
+  flex-shrink:0;opacity:0.8;
+}
+.inv-item-wt{
+  font-size:0.42rem;color:var(--dim);margin-left:auto;flex-shrink:0;
+}
+.inv-item-name{
+  font-size:0.85rem;font-weight:700;
+  color:#fff;line-height:1.2;margin-bottom:5px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.inv-item-desc{
+  font-size:0.58rem;color:rgba(255,255,255,0.38);
+  line-height:1.5;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
+  overflow:hidden;
+}
+.inv-item-desc.ai-pending{
+  color:rgba(136,0,255,0.45);
+  font-style:italic;
+}
+/* glow on hover/active by category */
+.inv-item:active .inv-item-bar{opacity:1;}
 
 /* ══════════════════════════════════════════
    PAGE: WIKI
@@ -1977,36 +2027,7 @@ body{
 }
 .cf.on{border-color:var(--border2);color:var(--text);}
 
-.inv-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-.inv-item{
-  background:var(--surface);border:1px solid var(--border);
-  border-radius:var(--radius);
-  position:relative;transition:all 0.2s;
-  border-top:2px solid transparent;
-  overflow:hidden;
-  cursor:pointer;
-  -webkit-tap-highlight-color:transparent;
-  display:flex;flex-direction:column;
-}
-.inv-item:active{transform:scale(0.96);opacity:0.9;}
-.inv-item-img{
-  width:100%;height:90px;overflow:hidden;flex-shrink:0;position:relative;
-}
-.inv-item-img img{width:100%;height:100%;object-fit:cover;display:block;}
-.inv-item-img-overlay{
-  position:absolute;inset:0;
-  background:linear-gradient(to bottom,transparent 50%,rgba(5,5,8,0.8));
-}
-.inv-item-body{padding:10px;flex:1;}
-.inv-item-cat{font-size:0.5rem;color:var(--dim);margin-bottom:4px;display:flex;justify-content:space-between;align-items:center;}
-.inv-item-name{font-size:0.82rem;font-weight:bold;line-height:1.3;margin-bottom:3px;color:var(--text);}
-.inv-item-desc{font-size:0.6rem;color:var(--dim);line-height:1.4;}
-.inv-item-del{
-  position:absolute;top:5px;right:6px;
-  background:none;border:none;color:rgba(255,255,255,0.12);
-  cursor:pointer;font-size:0.7rem;padding:2px;
-}
-.inv-item-del:active{color:var(--sangue-l);}
+.inv-grid{display:flex;flex-direction:column;gap:8px;}
 
 /* ══════════════════════════════════════════
    PAGE: WIKI
@@ -3188,16 +3209,16 @@ textarea{min-height:70px;resize:vertical;}
       <div class="inv-weight">
         <span class="inv-wt-label">CARGA</span>
         <div class="inv-wt-bar"><div class="inv-wt-fill" id="wt-fill" style="width:0%"></div></div>
-        <span class="inv-wt-num"><span id="wt-cur">0</span>/15</span>
+        <span class="inv-wt-num"><span id="wt-cur">0</span><span style="opacity:0.4">/15</span></span>
         <span class="inv-warn" id="wt-warn" style="display:none">⚠ SOBRECARGA</span>
       </div>
       <div class="cat-filters" id="cat-filters">
-        <button class="cf on" data-c="all"      onclick="catFilt(this)">TUDO</button>
-        <button class="cf"    data-c="arma"     onclick="catFilt(this)">⚔️ ARMAS</button>
-        <button class="cf"    data-c="protecao" onclick="catFilt(this)">🛡️ PROTEÇÃO</button>
-        <button class="cf"    data-c="consumivel" onclick="catFilt(this)">🧪 CONSUMÍVEIS</button>
+        <button class="cf on" data-c="all"       onclick="catFilt(this)">TUDO</button>
+        <button class="cf"    data-c="arma"      onclick="catFilt(this)">⚔️ ARMAS</button>
+        <button class="cf"    data-c="protecao"  onclick="catFilt(this)">🛡️ PROTEÇÃO</button>
+        <button class="cf"    data-c="consumivel"onclick="catFilt(this)">🧪 CONSUMÍVEIS</button>
         <button class="cf"    data-c="ocultismo" onclick="catFilt(this)">🔮 OCULTISMO</button>
-        <button class="cf"    data-c="geral"    onclick="catFilt(this)">📦 GERAL</button>
+        <button class="cf"    data-c="geral"     onclick="catFilt(this)">📦 GERAL</button>
       </div>
       <div class="inv-grid" id="inv-grid"></div>
     </div>
@@ -3527,22 +3548,27 @@ textarea{min-height:70px;resize:vertical;}
 <div class="modal-bg" id="modal-item-detail">
   <div class="modal-sheet" style="--m-c:var(--conhecimento-l)">
     <div class="modal-handle"></div>
-    <div id="idet-photo-wrap" style="width:100%;height:180px;border-radius:var(--radius);overflow:hidden;margin-bottom:14px;display:none;position:relative;">
-      <img id="idet-photo" src="" style="width:100%;height:100%;object-fit:cover;">
-      <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.7),transparent 50%);"></div>
-    </div>
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
-      <div>
-        <div id="idet-cat" style="font-size:0.5rem;letter-spacing:2px;color:var(--dim);margin-bottom:3px;"></div>
-        <div id="idet-name" style="font-family:'Cinzel',serif;font-size:1.2rem;color:var(--text);line-height:1.2;"></div>
+    <div id="idet-photo-wrap" style="width:calc(100% + 32px);margin:-16px -16px 0;height:200px;overflow:hidden;position:relative;display:none;border-radius:var(--radius) var(--radius) 0 0;">
+      <img id="idet-photo" src="" style="width:100%;height:100%;object-fit:cover;display:block;">
+      <div style="position:absolute;inset:0;background:linear-gradient(to bottom,transparent 30%,rgba(6,6,14,0.88) 100%);pointer-events:none;"></div>
+      <div style="position:absolute;bottom:12px;left:16px;right:16px;">
+        <div id="idet-cat-overlay" style="font-size:0.4rem;letter-spacing:2px;margin-bottom:4px;color:rgba(255,255,255,0.6);"></div>
+        <div id="idet-name" style="font-family:'Cinzel',serif;font-size:1.2rem;color:#fff;line-height:1.2;text-shadow:0 2px 8px rgba(0,0,0,0.8);"></div>
       </div>
-      <div id="idet-wt" style="font-family:'Cinzel',serif;font-size:1.1rem;color:var(--conhecimento-l);text-align:right;flex-shrink:0;margin-left:10px;"></div>
     </div>
-    <div id="idet-desc" style="font-size:0.75rem;color:#bbbbd0;line-height:1.65;margin-bottom:16px;"></div>
+    <div id="idet-noPhoto-header" style="margin-bottom:6px;">
+      <div id="idet-cat" style="font-size:0.42rem;letter-spacing:2px;color:var(--dim);margin-bottom:5px;"></div>
+      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;">
+        <div id="idet-name-nophoto" style="font-family:'Cinzel',serif;font-size:1.2rem;color:var(--text);line-height:1.2;flex:1;"></div>
+        <div id="idet-wt" style="font-size:0.7rem;color:var(--conhecimento-l);flex-shrink:0;"></div>
+      </div>
+    </div>
+    <div style="height:1px;background:linear-gradient(to right,var(--m-c,#888)44,transparent);margin:10px 0 12px;"></div>
+    <div id="idet-desc" style="font-size:0.72rem;color:rgba(200,200,220,0.75);line-height:1.7;margin-bottom:16px;white-space:pre-wrap;"></div>
     <input type="hidden" id="idet-idx">
     <div class="mbtns">
-      <button class="mbtn mbtn-p" style="background:linear-gradient(135deg,rgba(204,136,0,0.3),rgba(0,0,0,0));border-color:var(--conhecimento-l)" onclick="editItemFromDetail()">✏️ EDITAR</button>
-      <button class="mbtn mbtn-s" style="border-color:rgba(204,17,17,0.3);color:rgba(255,51,51,0.6)" onclick="delItemFromDetail()">🗑️ REMOVER ITEM</button>
+      <button class="mbtn mbtn-p" style="background:linear-gradient(135deg,rgba(204,136,0,0.2),transparent);border-color:var(--conhecimento-l)" onclick="editItemFromDetail()">✏️ EDITAR</button>
+      <button class="mbtn mbtn-s" style="border-color:rgba(200,30,30,0.25);color:rgba(255,60,60,0.55)" onclick="delItemFromDetail()">🗑 REMOVER</button>
       <button class="mbtn mbtn-s" onclick="closeModal('modal-item-detail')">FECHAR</button>
     </div>
   </div>
@@ -4467,20 +4493,29 @@ function addItem(){saveItem();}
 
 function openItemDetail(i){
   const it=P().inventory[i];if(!it)return;
+  const color=CAT_COLORS[it.cat]||'#888';
+  const icon=CAT_ICONS[it.cat]||'📦';
+  const catName=CAT_NAMES[it.cat]||'GERAL';
+  const wt=it.weight||0;
   document.getElementById('idet-idx').value=String(i);
-  document.getElementById('idet-name').textContent=it.name||'—';
-  document.getElementById('idet-cat').textContent=`${CAT_ICONS[it.cat]||'📦'} ${(it.cat||'geral').toUpperCase()} · ${it.weight||0} ESPAÇO${(it.weight||0)!==1?'S':''}`;
-  document.getElementById('idet-wt').textContent=`${it.weight||0}💼`;
-  document.getElementById('idet-desc').textContent=it.desc||'Sem descrição.';
+  document.getElementById('idet-desc').textContent=it.desc||(it._aiDescDone?'Sem descrição.':'✦ gerando descrição com IA…');
+  document.querySelector('#modal-item-detail .modal-sheet').style.setProperty('--m-c',color);
   const pw=document.getElementById('idet-photo-wrap');
+  const nh=document.getElementById('idet-noPhoto-header');
   if(it.photo){
     document.getElementById('idet-photo').src=it.photo;
-    pw.style.display='block';
-  } else {pw.style.display='none';}
-  // Color accent by cat
-  const topColor=CAT_COLORS[it.cat]||'#888';
-  document.querySelector('#modal-item-detail .modal-sheet').style.setProperty('--m-c',topColor);
+    document.getElementById('idet-name').textContent=it.name||'—';
+    const co=document.getElementById('idet-cat-overlay');
+    if(co) co.textContent=`${icon} ${catName} · ${wt} espaço${wt!==1?'s':''}`;
+    pw.style.display='block'; nh.style.display='none';
+  } else {
+    pw.style.display='none'; nh.style.display='block';
+    document.getElementById('idet-cat').textContent=`${icon} ${catName}`;
+    document.getElementById('idet-name-nophoto').textContent=it.name||'—';
+    document.getElementById('idet-wt').textContent=`${wt}💼 espaço${wt!==1?'s':''}`;
+  }
   openModal('modal-item-detail');
+  if(!it.desc&&!it._aiDescDone) _aiAutoDesc(i);
 }
 function delItemFromDetail(){
   const i=parseInt(document.getElementById('idet-idx').value);
@@ -4492,31 +4527,100 @@ function delItemFromDetail(){
 }
 function delItem(i){P().inventory.splice(i,1);renderInventory();save();}
 
+const CAT_NAMES={arma:'ARMA',protecao:'PROTEÇÃO',consumivel:'CONSUMÍVEL',ocultismo:'OCULTISMO',geral:'GERAL'};
+
 function renderInventory(){
   const p=P();
   const totalW=p.inventory.reduce((a,b)=>a+(b.weight||0),0);
-  const pct=Math.min(100,(totalW/15)*100);
+  const maxW=15;
+  const pct=Math.min(100,(totalW/maxW)*100);
   document.getElementById('wt-cur').textContent=totalW;
   document.getElementById('wt-fill').style.width=pct+'%';
-  document.getElementById('wt-fill').classList.toggle('over',totalW>15);
-  document.getElementById('wt-warn').style.display=totalW>15?'':'none';
+  document.getElementById('wt-fill').classList.toggle('over',totalW>maxW);
+  document.getElementById('wt-warn').style.display=totalW>maxW?'':'none';
 
   const filtered=invCatFilter==='all'?p.inventory:p.inventory.filter(it=>it.cat===invCatFilter);
   const grid=document.getElementById('inv-grid');
-  if(!filtered.length){grid.innerHTML=`<div class="empty-state" style="grid-column:1/-1"><span class="empty-icon">🎒</span>${invCatFilter==='all'?'Inventário vazio':'Sem itens nessa categoria'}</div>`;return;}
+  if(!filtered.length){
+    grid.innerHTML=`<div class="empty-state"><span class="empty-icon">🎒</span>${invCatFilter==='all'?'Inventário vazio. Adicione itens!':'Sem itens nessa categoria'}</div>`;
+    return;
+  }
   grid.innerHTML=filtered.map(it=>{
     const ri=p.inventory.indexOf(it);
-    const topColor=CAT_COLORS[it.cat]||'#888';
+    const color=CAT_COLORS[it.cat]||'#888';
+    const icon=CAT_ICONS[it.cat]||'📦';
+    const catName=CAT_NAMES[it.cat]||'GERAL';
+    const wt=it.weight||0;
     const hasPhoto=!!it.photo;
-    return `<div class="inv-item ${hasPhoto?'inv-item-has-photo':''}" style="border-top-color:${topColor};${hasPhoto?'grid-column:span 1;':''}" onclick="openItemDetail(${ri})">
-      ${hasPhoto?`<div class="inv-item-img"><img src="${it.photo}" alt="${it.name}" loading="lazy"><div class="inv-item-img-overlay"></div></div>`:''}
+    const descText=it.desc||'';
+    const isPending=!descText&&!it._aiDescDone;
+    const descHtml=isPending
+      ? `<div class="inv-item-desc ai-pending" id="aidesc-${ri}">✦ gerando descrição…</div>`
+      : descText
+        ? `<div class="inv-item-desc">${descText.length>90?descText.slice(0,88)+'…':descText}</div>`
+        : `<div class="inv-item-desc" style="opacity:0.2">Sem descrição.</div>`;
+
+    return `<div class="inv-item" style="--ic:${color}" onclick="openItemDetail(${ri})">
+      <div class="inv-item-bar"></div>
+      <div class="inv-item-thumb">
+        ${hasPhoto
+          ? `<img src="${it.photo}" alt="${it.name}" loading="lazy"><div class="inv-item-thumb-overlay"></div>`
+          : `<div class="inv-item-thumb-empty">${icon}</div>`}
+      </div>
       <div class="inv-item-body">
-        <div class="inv-item-cat"><span>${CAT_ICONS[it.cat]||'📦'}</span><span style="color:${topColor}44;font-size:0.45rem">${it.weight||0}💼</span></div>
+        <div class="inv-item-top">
+          <span class="inv-item-cat-badge">${catName}</span>
+          <span class="inv-item-wt">${wt} espaço${wt!==1?'s':''} 💼</span>
+        </div>
         <div class="inv-item-name">${it.name}</div>
-        ${it.desc?`<div class="inv-item-desc">${it.desc.length>55?it.desc.slice(0,52)+'…':it.desc}</div>`:''}
+        ${descHtml}
       </div>
     </div>`;
   }).join('');
+
+  // Auto-generate AI descriptions for items without one
+  filtered.forEach(it=>{
+    const ri=p.inventory.indexOf(it);
+    if(!it.desc&&!it._aiDescDone) _aiAutoDesc(ri);
+  });
+}
+
+/* silently generate description for an item via AI */
+var _aiDescPending={};
+async function _aiAutoDesc(idx){
+  if(_aiDescPending[idx]) return;
+  _aiDescPending[idx]=true;
+  const p=P();
+  const it=p.inventory[idx];
+  if(!it||it.desc||it._aiDescDone) return;
+  const cfg=PROVIDERS[_currentProvider];
+  const key=localStorage.getItem(cfg.keyStore)||'';
+  if(!key||key.length<10){ it._aiDescDone=true; return; } // no key, skip silently
+  try{
+    const sys=`Você é um especialista em itens do RPG Ordem Paranormal (Cellbit/Rafael Lange).
+Crie descrições curtas (1 frase de efeito mecânico + 1 frase de lore sombrio) para itens.
+Responda APENAS o texto da descrição, sem aspas, sem JSON. Máximo 2 frases.`;
+    const catHint={arma:'arma/weapon',protecao:'proteção/armor',consumivel:'consumível/potion',ocultismo:'item de ocultismo',geral:'item geral'};
+    const msg=`Categoria: ${catHint[it.cat]||'geral'}. Item: "${it.name}"`;
+    const desc=await callAI(sys,msg);
+    if(desc&&desc.length>5){
+      p.inventory[idx].desc=desc.replace(/^["“]/,'').replace(/["”]$/,'').trim();
+      p.inventory[idx]._aiDescDone=true;
+      save();
+      // Update just that card's desc text without full re-render
+      const el=document.getElementById('aidesc-'+idx);
+      if(el){
+        el.className='inv-card-desc';
+        el.textContent=desc;
+        const card=el.closest('.inv-card');
+        if(card&&!card.querySelector('.inv-card-ai-tag')){
+          const pw=card.querySelector('.inv-card-photo-wrap');
+          if(pw){const t=document.createElement('span');t.className='inv-card-ai-tag';t.textContent='✦IA';pw.appendChild(t);}
+        }
+      }
+    }
+  }catch(e){ /* silent fail */ }
+  finally{ _aiDescPending[idx]=true; }
 }
 
 /* WIKI */
