@@ -461,14 +461,8 @@ body{
   position:relative;overflow:hidden;
   cursor:pointer;-webkit-tap-highlight-color:transparent;
 }
-.arena-bg-symbol{
-  position:absolute;inset:0;
-  display:flex;align-items:center;justify-content:center;
-  font-size:9rem;opacity:0.04;pointer-events:none;
-  user-select:none;
-}
-.arena-die{font-size:4rem;position:relative;z-index:2;transition:transform 0.1s;}
-.arena-die.rolling{animation:dRoll 0.55s cubic-bezier(.17,.67,.35,1.2);}
+.arena-bg-symbol{display:none;} /* removed — clutters the result */
+.arena-die{display:none;} /* removed — number is the star */
 @keyframes dRoll{
   0%{transform:rotate(0) scale(1);}
   30%{transform:rotate(240deg) scale(1.4);}
@@ -479,11 +473,11 @@ body{
 .arena-result{
   position:absolute;z-index:3;
   font-family:'Cinzel',serif;
-  font-size:5rem;font-weight:900;line-height:1;
+  font-size:6.5rem;font-weight:900;line-height:1;
   pointer-events:none;
   opacity:0;transition:opacity 0.15s;
-  text-shadow:0 0 20px currentColor,0 0 50px currentColor,0 0 90px currentColor;
-  letter-spacing:-2px;
+  text-shadow:0 0 30px currentColor,0 0 70px currentColor,0 0 120px currentColor;
+  letter-spacing:-4px;
 }
 .arena-result-label{
   position:absolute;z-index:3;bottom:34px;
@@ -2709,6 +2703,71 @@ textarea{min-height:70px;resize:vertical;}
 }
 .now-playing-dots span:nth-child(2){animation-delay:0.16s;}
 .now-playing-dots span:nth-child(3){animation-delay:0.32s;}
+
+/* music add methods */
+.music-add-methods{
+  display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;
+}
+.music-add-btn{
+  flex:1;min-width:80px;
+  padding:10px 6px;
+  border-radius:4px;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  -webkit-tap-highlight-color:transparent;
+  transition:all 0.15s;font-family:'Share Tech Mono';
+}
+.music-add-btn:active{transform:scale(0.95);}
+.music-add-btn .ma-icon{font-size:1.4rem;}
+.music-add-btn .ma-label{font-size:0.4rem;letter-spacing:2px;color:rgba(255,255,255,0.4);}
+.mab-files{
+  background:rgba(0,0,0,0.5);
+  border:1px solid rgba(180,0,0,0.25);
+  color:var(--sangue-l);
+}
+.mab-files:active{border-color:var(--sangue-l);background:rgba(180,0,0,0.1);}
+.mab-folder{
+  background:rgba(0,0,0,0.5);
+  border:1px solid rgba(255,180,0,0.2);
+  color:rgba(255,180,0,0.7);
+}
+.mab-folder:active{border-color:rgba(255,180,0,0.6);background:rgba(255,180,0,0.07);}
+.mab-url{
+  background:rgba(0,0,0,0.5);
+  border:1px solid rgba(100,150,255,0.2);
+  color:rgba(100,150,255,0.7);
+}
+.mab-url:active{border-color:rgba(100,150,255,0.5);background:rgba(100,150,255,0.07);}
+/* url input row */
+.music-url-row{
+  display:none;margin-top:8px;
+  gap:6px;
+}
+.music-url-row.show{display:flex;}
+.music-url-inp{
+  flex:1;background:rgba(0,0,0,0.6);
+  border:1px solid rgba(100,150,255,0.2);
+  border-radius:3px;padding:8px 10px;
+  color:var(--text);font-family:'Share Tech Mono';font-size:0.65rem;
+  outline:none;
+}
+.music-url-inp:focus{border-color:rgba(100,150,255,0.5);}
+.music-url-go{
+  background:rgba(100,150,255,0.15);
+  border:1px solid rgba(100,150,255,0.3);
+  color:rgba(150,190,255,0.9);
+  border-radius:3px;padding:8px 12px;
+  cursor:pointer;font-size:0.65rem;font-family:'Share Tech Mono';
+  -webkit-tap-highlight-color:transparent;
+}
+.music-url-go:active{background:rgba(100,150,255,0.3);}
+.music-tip{
+  margin-top:8px;font-size:0.42rem;
+  color:var(--dim);line-height:1.7;letter-spacing:0.5px;
+  background:rgba(255,255,255,0.02);
+  border:1px solid rgba(255,255,255,0.04);
+  border-radius:3px;padding:8px 10px;
+}
+.music-tip b{color:rgba(255,255,255,0.35);}
 </style>
 </head>
 <body>
@@ -2733,7 +2792,8 @@ textarea{min-height:70px;resize:vertical;}
     </div>
     <div id="char-tabs"></div>
     <button id="add-char-btn" onclick="openModal('modal-new-char')" title="Novo personagem">＋</button>
-    <input type="file" id="music-input" accept="audio/*" multiple onchange="loadPlaylist(event)" style="display:none">
+    <input type="file" id="music-input" accept="audio/*,.mp3,.ogg,.wav,.flac,.aac,.m4a,.opus,.weba" multiple onchange="loadPlaylist(event)" style="display:none">
+    <input type="file" id="music-input-any" accept="*/*" multiple onchange="loadPlaylist(event)" style="display:none">
   </div>
 
   <!-- ▼ CONTENT -->
@@ -3163,7 +3223,32 @@ textarea{min-height:70px;resize:vertical;}
       <!-- Track list -->
       <div class="player-list-title">FAIXAS</div>
       <div class="player-tracks" id="player-tracks"></div>
-      <button class="player-add-btn" onclick="document.getElementById('music-input').click()">+ ADICIONAR MÚSICAS</button>
+      <!-- Add music methods -->
+      <div class="music-add-methods">
+        <button class="music-add-btn mab-files" onclick="document.getElementById('music-input').click()">
+          <span class="ma-icon">🎵</span>
+          <span class="ma-label">ARQUIVOS</span>
+        </button>
+        <button class="music-add-btn mab-folder" onclick="document.getElementById('music-input-any').click()">
+          <span class="ma-icon">📁</span>
+          <span class="ma-label">PASTA</span>
+        </button>
+        <button class="music-add-btn mab-url" onclick="toggleUrlInput()">
+          <span class="ma-icon">🔗</span>
+          <span class="ma-label">URL / LINK</span>
+        </button>
+      </div>
+      <div class="music-url-row" id="music-url-row">
+        <input class="music-url-inp" id="music-url-inp" type="url"
+          placeholder="https://... mp3/ogg direto">
+        <button class="music-url-go" onclick="addMusicUrl()">OK</button>
+      </div>
+      <div class="music-tip">
+        <b>ARQUIVOS</b> — selecione um ou vários (segure para multi-seleção)<br>
+        <b>PASTA</b> — abre o gerenciador de arquivos (navegue até sua música)<br>
+        <b>URL</b> — link direto para .mp3 ou .ogg online<br>
+        <b>App de música (Lark etc)</b> — abra o app → compartilhar → escolha o arquivo e use ARQUIVOS aqui
+      </div>
     </div>
 
   </div><!-- /content -->
@@ -5147,6 +5232,25 @@ function _updatePlayerUI(){
   _renderPlayerList();
 }
 
+
+function toggleUrlInput(){
+  var row=document.getElementById('music-url-row');
+  row.classList.toggle('show');
+  if(row.classList.contains('show'))document.getElementById('music-url-inp').focus();
+}
+function addMusicUrl(){
+  var url=document.getElementById('music-url-inp').value.trim();
+  if(!url)return;
+  var name=url.split('/').pop().replace(/\?.*$/,'').replace(/\.[^.]+$/,'')||'Faixa Online';
+  _pl.tracks.push(name);
+  _pl.urls.push(url);
+  _pl.durations.push(0);
+  if(!_pl.playing){_pl.idx=_pl.tracks.length-1;_playIdx(_pl.idx);}
+  _renderPlayerList();
+  document.getElementById('music-url-inp').value='';
+  document.getElementById('music-url-row').classList.remove('show');
+  toast('♫ '+name.substring(0,24)+' adicionada');
+}
 /* ══════════════════════════════════════════
    INIT
 ══════════════════════════════════════════ */
