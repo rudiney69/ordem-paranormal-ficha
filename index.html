@@ -2768,6 +2768,61 @@ textarea{min-height:70px;resize:vertical;}
   border-radius:3px;padding:8px 10px;
 }
 .music-tip b{color:rgba(255,255,255,0.35);}
+
+/* ══════════════════════════════════════════
+   IA UI ELEMENTS (inline in modals / ficha)
+══════════════════════════════════════════ */
+.ai-inline-btn{
+  display:flex;align-items:center;gap:6px;
+  padding:7px 12px;border-radius:3px;cursor:pointer;
+  background:rgba(136,0,255,0.1);
+  border:1px solid rgba(136,0,255,0.25);
+  color:var(--energia-l);font-size:0.58rem;letter-spacing:2px;
+  font-family:'Share Tech Mono';
+  -webkit-tap-highlight-color:transparent;transition:all 0.15s;
+  width:100%;justify-content:center;margin-top:8px;
+}
+.ai-inline-btn:active{background:rgba(136,0,255,0.2);border-color:var(--energia-l);}
+.ai-inline-btn:disabled{opacity:0.5;pointer-events:none;}
+.ai-desc-inp{
+  width:100%;background:rgba(0,0,0,0.5);
+  border:1px solid rgba(136,0,255,0.2);border-radius:3px;
+  padding:8px 10px;color:var(--text);
+  font-family:'Share Tech Mono';font-size:0.65rem;
+  outline:none;resize:none;min-height:56px;margin-top:6px;
+}
+.ai-desc-inp:focus{border-color:rgba(136,0,255,0.5);}
+.ai-inline-result{
+  display:none;margin-top:8px;
+  font-size:0.62rem;line-height:1.7;color:rgba(255,255,255,0.6);
+  background:rgba(136,0,255,0.06);
+  border:1px solid rgba(136,0,255,0.15);
+  border-radius:3px;padding:10px;
+}
+.ai-section-sep{
+  margin:12px 0 8px;
+  display:flex;align-items:center;gap:8px;
+  font-size:0.42rem;letter-spacing:3px;color:rgba(136,0,255,0.5);
+}
+.ai-section-sep::before,.ai-section-sep::after{
+  content:'';flex:1;height:1px;
+  background:linear-gradient(to right,rgba(136,0,255,0.2),transparent);
+}
+.ai-section-sep::after{background:linear-gradient(to left,rgba(136,0,255,0.2),transparent);}
+/* status diagnosis block on ficha */
+#ai-status-wrap{
+  background:rgba(0,0,0,0.5);
+  border:1px solid rgba(136,0,255,0.15);
+  border-radius:var(--radius);padding:12px;
+  margin-top:2px;
+}
+/* session summary on wiki/log area */
+#ai-session-wrap{
+  background:rgba(0,0,0,0.5);
+  border:1px solid rgba(136,0,255,0.15);
+  border-radius:var(--radius);padding:12px;
+  margin-top:10px;
+}
 </style>
 </head>
 <body>
@@ -2906,6 +2961,15 @@ textarea{min-height:70px;resize:vertical;}
         </div>
       </div>
 
+      <!-- IA: STATUS DIAGNOSIS -->
+      <div id="ai-status-wrap">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+          <span style="font-size:0.45rem;letter-spacing:3px;color:rgba(136,0,255,0.6)">✦ DIAGNÓSTICO IA</span>
+          <button class="ai-inline-btn" id="ai-status-btn" onclick="aiStatusDiagnosis()" style="width:auto;margin-top:0;padding:4px 10px;font-size:0.5rem">✦ DIAGNÓSTICO IA</button>
+        </div>
+        <div class="ai-inline-result" id="ai-status-result" style="margin-top:0"></div>
+      </div>
+
       <!-- HABILIDADES DE CLASSE -->
       <div class="sec-title" style="--sec-c:var(--sangue)">HABILIDADES <span style="font-size:0.45rem;color:var(--dim);margin-left:4px">TOQUE PARA EXPANDIR</span></div>
       <div id="abilities-list"></div>
@@ -2981,17 +3045,28 @@ textarea{min-height:70px;resize:vertical;}
 
     <!-- PAGE: RITUAIS -->
     <div id="page-rituais" class="page">
+      <!-- Ritual search bar -->
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.06);border-radius:4px;padding:4px 10px;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" style="opacity:0.3;flex-shrink:0">
+          <circle cx="11" cy="11" r="7" stroke="white" stroke-width="2"/>
+          <path d="M16.5 16.5L21 21" stroke="white" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <input id="ritual-search" type="text" placeholder="BUSCAR RITUAL..."
+          style="flex:1;background:none;border:none;outline:none;color:var(--text);font-family:'Share Tech Mono';font-size:0.65rem;letter-spacing:1px;padding:5px 0;"
+          oninput="onRitualSearch()">
+        <button id="ritual-search-clear" onclick="clearRitualSearch()" style="display:none;background:none;border:none;color:var(--dim);font-size:0.8rem;cursor:pointer;padding:0 2px;">✕</button>
+      </div>
       <div class="tab-row">
-        <button class="tpill active" onclick="switchRitTab(0,this)">APRENDIDOS</button>
-        <button class="tpill" onclick="switchRitTab(1,this)">BIBLIOTECA</button>
+        <button class="tpill active" onclick="switchRitTab(0,this)">BIBLIOTECA</button>
+        <button class="tpill" onclick="switchRitTab(1,this)">GRIMÓRIO</button>
         <button class="tpill" onclick="switchRitTab(2,this)">✦ IA</button>
       </div>
-      <!-- APRENDIDOS -->
+      <!-- BIBLIOTECA (rituals learned by char) -->
       <div id="rit-mine">
         <div class="rit-list" id="rit-my-list"></div>
         <button class="mbtn mbtn-s" style="margin-top:10px;width:100%;padding:10px;font-size:0.65rem;letter-spacing:2px;cursor:pointer" onclick="openModal('modal-ritual')">＋ RITUAL CUSTOMIZADO</button>
       </div>
-      <!-- BIBLIOTECA -->
+      <!-- GRIMÓRIO (global ritual DB) -->
       <div id="rit-lib" style="display:none">
         <div class="elem-filters" id="lib-elem-filters">
           <button class="ef on" style="border-color:var(--sangue);color:var(--sangue-l);"      data-e="SANGUE"       onclick="toggleLibElem(this)">SANGUE</button>
@@ -3130,6 +3205,13 @@ textarea{min-height:70px;resize:vertical;}
     <!-- PAGE: WIKI -->
     <div id="page-wiki" class="page">
       <div class="wiki-list" id="wiki-list"></div>
+      <!-- IA SESSION SUMMARY -->
+      <div id="ai-session-wrap">
+        <div style="font-size:0.45rem;letter-spacing:3px;color:rgba(136,0,255,0.6);margin-bottom:8px">✦ RESUMIDOR DE SESSÃO IA</div>
+        <div style="font-size:0.58rem;color:var(--dim);margin-bottom:8px;line-height:1.6">Gera um resumo narrativo da sessão baseado no log de ações. O resumo é salvo automaticamente nas notas do personagem.</div>
+        <button class="ai-inline-btn" id="ai-session-btn" onclick="aiSummarizeSession()">✦ RESUMIR SESSÃO</button>
+        <div class="ai-inline-result" id="ai-session-result"></div>
+      </div>
     </div>
 
     <!-- PAGE: PERÍCIAS (full) -->
@@ -3321,6 +3403,10 @@ textarea{min-height:70px;resize:vertical;}
       <button class="mbtn mbtn-p" onclick="saveChar()">SALVAR</button>
       <button class="mbtn mbtn-s" onclick="closeModal('modal-char')">CANCELAR</button>
     </div>
+    <div class="ai-section-sep">✦ GERAR COM IA</div>
+    <textarea class="ai-desc-inp" id="ai-char-desc" placeholder="Descreva o personagem... ex: 'Médica traumatizada que perdeu o filho para uma Entidade de Sangue, elemento Morte, NEX 25%'"></textarea>
+    <button class="ai-inline-btn" id="ai-char-btn" onclick="aiGenerateChar()">✦ GERAR FICHA COMPLETA</button>
+    <div class="ai-inline-result" id="ai-char-result"></div>
   </div>
 </div>
 
@@ -3430,7 +3516,10 @@ textarea{min-height:70px;resize:vertical;}
     <div class="mbtns">
       <button class="mbtn mbtn-p" onclick="saveItem()">GUARDAR</button>
       <button class="mbtn mbtn-s" onclick="closeModal('modal-item')">CANCELAR</button>
+      <button class="ai-inline-btn" id="ai-item-btn" onclick="aiGenerateItem()" style="margin-top:0;flex:0 0 auto;padding:7px 10px;width:auto">✦ IA</button>
     </div>
+    <div class="ai-section-sep">✦ DESCREVA PARA IA GERAR</div>
+    <textarea class="ai-desc-inp" id="ai-item-desc" placeholder="Ex: 'espelho antigo que mostra o Outro Lado, perturbador, categoria ocultismo'"></textarea>
   </div>
 </div>
 
@@ -3876,8 +3965,8 @@ function delta(k,d){
   if(diff<0) flashDamage(k,diff,pct);
   else flashHeal(k);
   log(`${label}: ${sign}${diff} → ${p[k].cur}/${p[k].max}`,diff<0?'fail':'heal');
-  if(k==='hp'&&p[k].cur===0){log('☠ PERSONAGEM MORTO OU INCONSCIENTE!','fail');flashDeath();}
-  if(k==='san'&&p[k].cur===0){log('💀 COLAPSO TOTAL DE SANIDADE!','fail');flashSanityBreak();}
+  if(k==='hp'&&p[k].cur===0){log('☠ PERSONAGEM MORTO OU INCONSCIENTE!','fail');flashDeath();aiNarrateEvent('morte','');}
+  if(k==='san'&&p[k].cur===0){log('💀 COLAPSO TOTAL DE SANIDADE!','fail');flashSanityBreak();aiNarrateEvent('colapso','');}
   renderBars();renderSanity();save();
 }
 
@@ -4118,6 +4207,8 @@ function rollAttr(k,label){
   const isCrit=best===20,isFail=best===1&&n===1;
   showDiceResultArena(best,label,isCrit?'CRIT':isFail?'FAIL':'');
   log(`${label} (${n}d20→melhor): [${rolls.join(', ')}] = ${best}${isCrit?' ★ CRÍTICO!':isFail?' ✕ FALHA!':''}`,isCrit?'crit':isFail?'fail':'');
+  if(isCrit)aiNarrateEvent('critico',label+' d20='+best);
+  else if(isFail)aiNarrateEvent('falha',label+' d20='+best);
   spawnParticles(best,isCrit?'#ffcc00':isFail?'#ff2244':'#00ffaa');
   if(getCurrentPage()!=='page-dados')
     toast(`${label}: ${best}${isCrit?' ★ CRÍTICO':isFail?' ✕ FALHA':''}`);
@@ -4181,8 +4272,11 @@ function rollSkill(i){
 function renderRituals(){
   const p=P();
   const el=document.getElementById('rit-my-list');
-  if(!p.rituals.length){el.innerHTML='<div class="empty-state"><span class="empty-icon">✦</span>Nenhum ritual aprendido. Explore a Biblioteca!</div>';return;}
-  el.innerHTML=p.rituals.map((r,i)=>ritCardHTML(r,i)).join('');
+  const list=p.rituals.filter(_matchSearch);
+  if(!p.rituals.length){el.innerHTML='<div class="empty-state"><span class="empty-icon">✦</span>Nenhum ritual na Biblioteca. Use o Grimório ou crie um ritual!</div>';return;}
+  if(!list.length){el.innerHTML='<div class="empty-state"><span class="empty-icon">🔍</span>Nenhum resultado para "'+_ritSearch+'"</div>';return;}
+  // Map with original index for cast/forget
+  el.innerHTML=p.rituals.map((r,i)=>_matchSearch(r)?ritCardHTML(r,i):'').join('');
 }
 function ritCardHTML(r,i){
   const ec=ELEM_CFG[r.e]||ELEM_CFG.SANGUE;
@@ -4193,7 +4287,7 @@ function ritCardHTML(r,i){
       <span class="rit-badge" style="color:${ec.light};border-color:${ec.light}">${r.e}</span>
       <span class="rit-circle">${r.c||1}º CÍRCULO</span>
     </div>
-    <div class="rit-name">${r.n}</div>
+    <div class="rit-name">${r.n}${r._ai?'<span style="font-size:0.35rem;letter-spacing:2px;color:var(--energia-l);margin-left:6px;vertical-align:middle">✦IA</span>':''}</div>
     <div class="rit-cost" style="color:${ec.light}">Custo: ${r.cost}</div>
     <div class="rit-desc">${r.d}</div>
     <div class="rit-actions">
@@ -4214,6 +4308,7 @@ function castRitual(i){
   const ec=ELEM_CFG[r.e]||ELEM_CFG.SANGUE;
   spawnParticles('✦',ec.light);
   toast(`${r.n} conjurado!`);
+  aiNarrateEvent('ritual', r.n);
 }
 function forgetRitual(i){
   if(!confirm(`Esquecer "${P().rituals[i].n}"?`))return;
@@ -4231,7 +4326,7 @@ function addCustomRitual(){
 function renderLibrary(){
   const p=P();
   const learned=new Set(p.rituals.map(r=>r.n));
-  const filtered=RITUALS_DB.filter(r=>libElemFilters.has(r.e));
+  const filtered=RITUALS_DB.filter(r=>libElemFilters.has(r.e)&&_matchSearch(r));
   const el=document.getElementById('lib-list');
   if(!filtered.length){el.innerHTML='<div class="empty-state"><span class="empty-icon">📚</span>Selecione elementos</div>';return;}
   el.innerHTML=filtered.map(r=>{
@@ -4245,7 +4340,7 @@ function renderLibrary(){
       <div class="rit-name" style="font-size:0.82rem;margin-bottom:3px">${r.n}</div>
       <div class="rit-cost" style="color:${ec.light};margin-bottom:5px">Custo: ${r.cost}</div>
       <div class="rit-desc">${r.d}</div>
-      ${!isL?`<button class="lib-learn-btn" onclick="learnRitual('${r.n}')">✦ APRENDER RITUAL</button>`:''}
+      ${!isL?`<button class="lib-learn-btn" onclick="learnRitual('${r.n}')">✦ ADICIONAR À BIBLIOTECA</button>`:''}
     </div>`;
   }).join('');
 }
@@ -4266,9 +4361,9 @@ function learnRitual(name){
   const r=RITUALS_DB.find(r=>r.n===name);
   p.rituals.push({...r});
   renderRituals();renderLibrary();save();
-  log(`✦ Aprendido: ${name}`,'ritual');
+  log(`✦ Biblioteca: ${name} adicionado`,'ritual');
   spawnParticles('✦',(ELEM_CFG[r.e]||ELEM_CFG.SANGUE).light);
-  toast(`${name} aprendido!`);
+  toast(`${name} adicionado à Biblioteca!`);
 }
 function switchRitTab(i,btn){
   document.querySelectorAll('#page-rituais .tpill').forEach(b=>b.classList.remove('active'));
@@ -4791,6 +4886,65 @@ function updateKeyStatus(){
   }
 }
 
+
+/* ══════════════════════════════════════════
+   CORE IA — callAI(system, user) → string
+   Usa o provedor/modelo/key atual configurado
+══════════════════════════════════════════ */
+async function callAI(systemPrompt, userMsg) {
+  const cfg = PROVIDERS[_currentProvider];
+  const key = localStorage.getItem(cfg.keyStore)||'';
+  if(!key || key.length < 10) throw new Error('SEM_KEY');
+
+  const model = (document.getElementById('ai-model-select')||{}).value || cfg.defaultModel;
+
+  if(_currentProvider === 'gemini'){
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`;
+    const resp = await fetch(endpoint, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        contents:[{parts:[{text: systemPrompt + '\n\n' + userMsg}]}],
+        generationConfig:{maxOutputTokens:600,temperature:0.85},
+      }),
+    });
+    if(!resp.ok){ const e=await resp.json().catch(()=>({error:{message:'HTTP '+resp.status}})); throw new Error(e?.error?.message||'HTTP '+resp.status); }
+    const data = await resp.json();
+    return (data?.candidates?.[0]?.content?.parts?.[0]?.text||'').trim();
+  } else {
+    const endpoints = {
+      deepseek:   'https://api.deepseek.com/v1/chat/completions',
+      groq:       'https://api.groq.com/openai/v1/chat/completions',
+      openrouter: 'https://openrouter.ai/api/v1/chat/completions',
+    };
+    const headers = {
+      'Content-Type':'application/json',
+      'Authorization':'Bearer ' + key,
+    };
+    if(_currentProvider === 'openrouter'){ headers['HTTP-Referer']='https://op-rpg.app'; headers['X-Title']='Ordem Paranormal RPG'; }
+    const body = { model, max_tokens:600,
+      messages:[{role:'system',content:systemPrompt},{role:'user',content:userMsg}] };
+    if(_currentProvider !== 'openrouter') body.response_format = {type:'json_object'};
+    const resp = await fetch(endpoints[_currentProvider], {method:'POST',headers,body:JSON.stringify(body)});
+    if(!resp.ok){ const e=await resp.json().catch(()=>({error:{message:'HTTP '+resp.status}})); throw new Error(e?.error?.message||'HTTP '+resp.status); }
+    const data = await resp.json();
+    return (data?.choices?.[0]?.message?.content||'').trim();
+  }
+}
+
+function _parseAIJson(raw){
+  const cleaned = raw.replace(/```json|```/g,'').trim();
+  try{ return JSON.parse(cleaned); } catch(e){}
+  const m = cleaned.match(/\{[^]*\}/);
+  if(m) try{ return JSON.parse(m[0]); } catch(e2){}
+  return null;
+}
+
+function _noKeyError(){
+  const cfg = PROVIDERS[_currentProvider];
+  toast('Configure a key '+cfg.name+' na aba ✦ IA dos Rituais!');
+}
+
 async function generateRitual(){
   const cfg = PROVIDERS[_currentProvider];
   const key = localStorage.getItem(cfg.keyStore)||'';
@@ -4987,7 +5141,7 @@ function learnAIRitual(){
   const r=_aiRitualResult;
   const p=P();
   const alreadyInSheet=p.rituals.find(x=>x.n===r.n);
-  if(!alreadyInSheet){p.rituals.push({...r});renderRituals();save();}
+  if(!alreadyInSheet){r._ai=true;p.rituals.push({...r});renderRituals();save();}
   const alreadyInLib=RITUALS_DB.find(x=>x.n===r.n);
   if(!alreadyInLib){
     RITUALS_DB.push({...r,_ai:true});
@@ -5250,6 +5404,204 @@ function addMusicUrl(){
   document.getElementById('music-url-inp').value='';
   document.getElementById('music-url-row').classList.remove('show');
   toast('♫ '+name.substring(0,24)+' adicionada');
+}
+
+/* ══════════════════════════════════════
+   RITUAL SEARCH
+══════════════════════════════════════ */
+var _ritSearch='';
+function onRitualSearch(){
+  _ritSearch=document.getElementById('ritual-search').value.toLowerCase().trim();
+  document.getElementById('ritual-search-clear').style.display=_ritSearch?'block':'none';
+  // Search applies to whichever tab is active
+  var mineVisible=document.getElementById('rit-mine').style.display!=='none';
+  var libVisible=document.getElementById('rit-lib').style.display!=='none';
+  if(mineVisible)renderRituals();
+  if(libVisible)renderLibrary();
+}
+function clearRitualSearch(){
+  document.getElementById('ritual-search').value='';
+  _ritSearch='';
+  document.getElementById('ritual-search-clear').style.display='none';
+  renderRituals();renderLibrary();
+}
+function _matchSearch(r){
+  if(!_ritSearch)return true;
+  return (r.n&&r.n.toLowerCase().includes(_ritSearch))||
+         (r.d&&r.d.toLowerCase().includes(_ritSearch))||
+         (r.e&&r.e.toLowerCase().includes(_ritSearch))||
+         (r.cost&&r.cost.toLowerCase().includes(_ritSearch));
+}
+
+/* ══════════════════════════════════════════
+   IA 1: GERADOR DE PERSONAGEM
+══════════════════════════════════════════ */
+async function aiGenerateChar(){
+  const desc = document.getElementById('ai-char-desc').value.trim();
+  if(!desc){ toast('Descreva o personagem!'); return; }
+  const btn = document.getElementById('ai-char-btn');
+  btn.textContent = '⟳ GERANDO...'; btn.disabled = true;
+  try{
+    const sys = `Você é um especialista em RPG Ordem Paranormal (Cellbit/Rafael Lange).
+Crie fichas de personagem ricas e coerentes com o lore. Responda APENAS JSON sem markdown:
+{"nome":"...","classe":"...","elemento":"SANGUE|ENERGIA|MORTE|CONHECIMENTO|MEDO","nex":5|10|15|25|35|50|65|85|99,"org":"...","origem":"...","pvmax":N,"sanmax":N,"pemax":N,"defesa":N,"atributos":{"for":N,"agi":N,"int":N,"vig":N,"pre":N},"pericias":["nome (ATTR)"],"notas":"backstory 2-3 frases sombrias"}
+Classes: Combatente, Especialista, Ocultista. NEX define poder (5=iniciante,99=lendário). Atributos 1-5. PV=vig*4+20, SAN=pre*4+20, PE=int+classe.`;
+    const raw = await callAI(sys, 'Crie um personagem: ' + desc);
+    const c = _parseAIJson(raw);
+    if(!c){ toast('IA retornou resposta inválida. Tente novamente.'); return; }
+    // Fill char modal fields
+    if(c.nome) document.getElementById('mc-name').value = c.nome;
+    if(c.classe) document.getElementById('mc-class').value = c.classe;
+    if(c.elemento) document.getElementById('mc-elem').value = c.elemento;
+    if(c.nex) document.getElementById('mc-nex').value = c.nex;
+    if(c.org) document.getElementById('mc-org').value = c.org;
+    if(c.origem) document.getElementById('mc-origin').value = c.origem;
+    if(c.pvmax) document.getElementById('mc-hpmax').value = c.pvmax;
+    if(c.sanmax) document.getElementById('mc-sanmax').value = c.sanmax;
+    if(c.pemax) document.getElementById('mc-pemax').value = c.pemax;
+    if(c.defesa) document.getElementById('mc-def').value = c.defesa;
+    // Attrs + skills
+    if(c.atributos){ const p=P(); Object.assign(p.attrs, {for:c.atributos.for||2,agi:c.atributos.agi||2,int:c.atributos.int||2,vig:c.atributos.vig||2,pre:c.atributos.pre||2}); }
+    if(c.pericias&&c.pericias.length){
+      const p=P();
+      c.pericias.slice(0,6).forEach(s=>{
+        const m=s.match(/(.+?)\s*\(?(FOR|AGI|INT|VIG|PRE)\)?/i);
+        if(m&&!p.skills.find(x=>x.name===m[1].trim()))
+          p.skills.push({name:m[1].trim(),attr:(m[2]||'int').toLowerCase(),mod:0,train:1});
+      });
+    }
+    if(c.notas){ const p=P(); p.notes=(p.notes?p.notes+'\n\n':'')+'[IA] '+c.notas; }
+    document.getElementById('ai-char-result').textContent = '✦ Ficha gerada! Revise e clique em SALVAR.';
+    document.getElementById('ai-char-result').style.color = 'var(--conhecimento-l)';
+    toast('✦ Personagem gerado pela IA!');
+  } catch(e){
+    if(e.message==='SEM_KEY'){ _noKeyError(); return; }
+    toast('Erro IA: '+e.message.substring(0,40));
+  } finally {
+    btn.textContent = '✦ GERAR COM IA'; btn.disabled = false;
+  }
+}
+
+/* ══════════════════════════════════════════
+   IA 2: GERADOR DE ITEM PARANORMAL
+══════════════════════════════════════════ */
+async function aiGenerateItem(){
+  const desc = document.getElementById('ai-item-desc').value.trim();
+  if(!desc){ toast('Descreva o item!'); return; }
+  const btn = document.getElementById('ai-item-btn');
+  btn.textContent = '⟳ FORJANDO...'; btn.disabled = true;
+  try{
+    const sys = `Você é um especialista em itens paranormais do RPG Ordem Paranormal (Cellbit/Rafael Lange).
+Crie itens únicos, sombrios e mecanicamente interessantes. Responda APENAS JSON sem markdown:
+{"nome":"...","categoria":"geral|arma|protecao|consumivel|ocultismo","espacos":N,"descricao":"2-3 frases com efeito mecânico + lore sombrio"}
+Seja específico em danos/bônus (ex: 1d8+2, +2 Defesa). Tom: paranormal, investigativo, perturbador.`;
+    const raw = await callAI(sys, 'Crie um item paranormal: ' + desc);
+    const it = _parseAIJson(raw);
+    if(!it){ toast('IA retornou resposta inválida.'); return; }
+    if(it.nome) document.getElementById('it-name').value = it.nome;
+    if(it.categoria) document.getElementById('it-cat').value = it.categoria;
+    if(it.espacos) document.getElementById('it-wt').value = it.espacos;
+    if(it.descricao) document.getElementById('it-desc').value = it.descricao;
+    toast('✦ Item gerado! Revise e salve.');
+  } catch(e){
+    if(e.message==='SEM_KEY'){ _noKeyError(); return; }
+    toast('Erro IA: '+e.message.substring(0,40));
+  } finally {
+    btn.textContent = '✦ IA'; btn.disabled = false;
+  }
+}
+
+/* ══════════════════════════════════════════
+   IA 3: NARRADOR DE COMBATE (auto em crits/morte)
+══════════════════════════════════════════ */
+async function aiNarrateEvent(tipo, ctx){
+  // Silently generate narrative — no loading UI, just appends to log
+  const cfg = PROVIDERS[_currentProvider];
+  const key = localStorage.getItem(cfg.keyStore)||'';
+  if(!key||key.length<10) return; // silent fail if no key
+  const p = P();
+  const charInfo = `${p.char.name||'Agente'} (${p.char.class||'?'}, NEX ${p.char.nex||5}%, ${p.char.elem||'?'}) — PV ${p.hp.cur}/${p.hp.max}, SAN ${p.san.cur}/${p.san.max}`;
+  const sys = `Você é o narrador de uma mesa de RPG Ordem Paranormal (Cellbit/Rafael Lange).
+Crie descrições curtas (1-2 frases) de momentos de combate. Tom: cinematográfico, sombrio, visceral.
+Responda APENAS o texto da narração, sem aspas, sem JSON.`;
+  const prompts = {
+    critico: `Descreva um acerto crítico do personagem: ${charInfo}. Contexto: ${ctx}`,
+    falha:   `Descreva uma falha crítica do personagem: ${charInfo}. Contexto: ${ctx}`,
+    morte:   `Descreva o momento em que ${charInfo} cai inconsciente/morre. Visceral e poético.`,
+    colapso: `Descreva o colapso total de sanidade de ${charInfo}. Perturbador e surreal.`,
+    ritual:  `Descreva a conjuração do ritual "${ctx}" por ${charInfo}. Atmosférico e paranormal.`,
+    dano_alto: `Descreva ${charInfo} recebendo um golpe pesado. Breve, impactante.`,
+  };
+  try{
+    const narr = await callAI(sys, prompts[tipo]||prompts.dano_alto);
+    if(narr&&narr.length>5) log('📖 '+narr.replace(/^["']/,'').replace(/["']$/,''), 'info');
+  } catch(e){ /* silent */ }
+}
+
+/* ══════════════════════════════════════════
+   IA 4: DIAGNÓSTICO DE STATUS
+══════════════════════════════════════════ */
+async function aiStatusDiagnosis(){
+  const btn = document.getElementById('ai-status-btn');
+  if(btn){ btn.textContent='⟳'; btn.disabled=true; }
+  const p = P();
+  const hpPct = p.hp.max>0?Math.round(p.hp.cur/p.hp.max*100):100;
+  const sanPct = p.san.max>0?Math.round(p.san.cur/p.san.max*100):100;
+  const pePct  = p.pe.max>0?Math.round(p.pe.cur/p.pe.max*100):100;
+  const conds = p.conditions&&p.conditions.length?p.conditions.join(', '):'nenhuma';
+  try{
+    const sys = `Você é um médico e psicólogo do mundo do RPG Ordem Paranormal (Cellbit/Rafael Lange).
+Descreva em 3-4 frases o estado físico e mental atual do agente, de forma narrativa e imersiva.
+Use terminologia médica misturada com elementos paranormais. Tom: preocupante mas factual.
+Responda APENAS o texto, sem JSON, sem aspas externas.`;
+    const msg = `Agente: ${p.char.name||'?'} (${p.char.class||'?'}, NEX ${p.char.nex||5}%)
+PV: ${p.hp.cur}/${p.hp.max} (${hpPct}%) | SAN: ${p.san.cur}/${p.san.max} (${sanPct}%) | PE: ${p.pe.cur}/${p.pe.max} (${pePct}%)
+Condições ativas: ${conds}
+Elemento: ${p.char.elem||'nenhum'}`;
+    const diag = await callAI(sys, msg);
+    document.getElementById('ai-status-result').textContent = diag;
+    document.getElementById('ai-status-result').style.display = 'block';
+  } catch(e){
+    if(e.message==='SEM_KEY'){ _noKeyError(); }
+    else { document.getElementById('ai-status-result').textContent = 'Erro: '+e.message; }
+    document.getElementById('ai-status-result').style.display = 'block';
+  } finally {
+    if(btn){ btn.textContent='✦ DIAGNÓSTICO IA'; btn.disabled=false; }
+  }
+}
+
+/* ══════════════════════════════════════════
+   IA 5: RESUMIDOR DE SESSÃO
+══════════════════════════════════════════ */
+async function aiSummarizeSession(){
+  const btn = document.getElementById('ai-session-btn');
+  btn.textContent='⟳ RESUMINDO...'; btn.disabled=true;
+  const logEl = document.getElementById('log-list');
+  const logText = logEl ? Array.from(logEl.children).map(li=>li.textContent).join('\n') : '';
+  const notes = P().notes||'';
+  if(!logText&&!notes){ toast('Nenhuma atividade no log ainda!'); btn.textContent='✦ RESUMIR SESSÃO'; btn.disabled=false; return; }
+  try{
+    const sys = `Você é o escriba de uma campanha de RPG Ordem Paranormal (Cellbit/Rafael Lange).
+Crie um resumo de sessão narrativo, imersivo, em 3-5 parágrafos. 
+Escreva na perspectiva de um diário ou relatório da Ordo Realitas. 
+Tom: sombrio, investigativo, cinematográfico. Use nomes reais dos personagens.
+Responda APENAS o texto do resumo, sem JSON, sem título.`;
+    const msg = `Personagem: ${P().char.name||'Agente'} (${P().char.class||'?'})
+LOG DE AÇÕES:\n${logText.substring(0,1500)}
+NOTAS DO JOGADOR:\n${notes.substring(0,500)}`;
+    const resumo = await callAI(sys, msg);
+    document.getElementById('ai-session-result').textContent = resumo;
+    document.getElementById('ai-session-result').style.display = 'block';
+    // Save to notes
+    const date = new Date().toLocaleDateString('pt-BR');
+    P().notes = (P().notes?P().notes+'\n\n':'')+`--- SESSÃO ${date} ---\n${resumo}`;
+    save(); toast('✦ Resumo salvo nas notas!');
+  } catch(e){
+    if(e.message==='SEM_KEY'){ _noKeyError(); }
+    else toast('Erro IA: '+e.message.substring(0,40));
+  } finally {
+    btn.textContent='✦ RESUMIR SESSÃO'; btn.disabled=false;
+  }
 }
 /* ══════════════════════════════════════════
    INIT
