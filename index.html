@@ -1704,8 +1704,10 @@ a,button,input,select,textarea,[onclick],[role="button"] {
           <div class="arena-hint" id="arena-hint">TOQUE PARA ROLAR</div>
         </div>
         <div class="die-grid" id="die-grid">
+          <button class="die-btn" data-s="2"   onclick="selDie(2)">d2</button>
           <button class="die-btn" data-s="3"   onclick="selDie(3)">d3</button>
           <button class="die-btn" data-s="4"   onclick="selDie(4)">d4</button>
+          <button class="die-btn" data-s="5"   onclick="selDie(5)">d5</button>
           <button class="die-btn" data-s="6"   onclick="selDie(6)">d6</button>
           <button class="die-btn" data-s="8"   onclick="selDie(8)">d8</button>
           <button class="die-btn" data-s="10"  onclick="selDie(10)">d10</button>
@@ -3439,7 +3441,7 @@ function handlePhoto(e){
 }
 
 /* DICE */
-const DIE_EMOJI={3:'🎲',4:'🎲',6:'⚄',8:'🎲',10:'🎲',12:'🎲',20:'⚡',100:'💀'};
+const DIE_EMOJI={2:'🪙',3:'🎲',4:'🎲',6:'⚄',8:'🎲',10:'🎲',12:'🎲',20:'⚡',100:'💀'};
 function selDie(s){
   selDieVal=s;
   document.querySelectorAll('.die-btn').forEach(b=>b.classList.toggle('sel',parseInt(b.dataset.s)===s));
