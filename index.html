@@ -1095,10 +1095,10 @@ textarea{min-height:70px;resize:vertical;}
 #blood-vignette{
   position:fixed;inset:0;z-index:2;pointer-events:none;
   background:
-    radial-gradient(ellipse 80% 15% at 50% 0%, rgba(100,0,0,0.3) 0%, transparent 100%),
-    radial-gradient(ellipse 80% 10% at 50% 100%, rgba(60,0,0,0.25) 0%, transparent 100%),
-    radial-gradient(ellipse 15% 100% at 0% 50%, rgba(60,0,0,0.15) 0%, transparent 100%),
-    radial-gradient(ellipse 15% 100% at 100% 50%, rgba(60,0,0,0.12) 0%, transparent 100%);
+    radial-gradient(ellipse 80% 15% at 50% 0%, rgba(100,0,0,0.12) 0%, transparent 100%),
+    radial-gradient(ellipse 80% 10% at 50% 100%, rgba(60,0,0,0.08) 0%, transparent 100%),
+    radial-gradient(ellipse 15% 100% at 0% 50%, rgba(60,0,0,0.05) 0%, transparent 100%),
+    radial-gradient(ellipse 15% 100% at 100% 50%, rgba(60,0,0,0.04) 0%, transparent 100%);
 }
 
 /* ══════════════════════════════════════════
@@ -1507,6 +1507,71 @@ a,button,input,select,textarea,[onclick],[role="button"] {
 .ability-card.ai-ability::before{
   background:linear-gradient(to bottom,var(--energia),var(--sangue));
 }
+
+/* ── Rolagem rápida ── */
+.quick-section-title{
+  font-size:0.48rem;letter-spacing:2px;color:var(--dim);
+  margin:10px 0 6px;text-align:center;
+}
+.quick-roll-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:5px;
+  margin-bottom:10px;
+}
+.qroll-btn{
+  background:rgba(0,0,0,0.45);
+  border:1px solid rgba(255,255,255,0.07);
+  border-radius:var(--radius);
+  color:var(--text);cursor:pointer;
+  padding:8px 4px;
+  font-family:'Share Tech Mono',monospace;
+  font-size:0.52rem;letter-spacing:0.5px;
+  display:flex;flex-direction:column;align-items:center;gap:2px;
+  transition:all 0.12s;
+  -webkit-tap-highlight-color:transparent;
+}
+.qroll-btn:active{transform:scale(0.95);filter:brightness(1.3);}
+.qroll-btn .qr-icon{font-size:1rem;}
+.qroll-btn .qr-label{font-size:0.42rem;opacity:0.7;letter-spacing:1px;}
+.qroll-btn .qr-mod{font-size:0.5rem;color:var(--conhecimento-l);}
+
+/* ── Macros ── */
+.macro-grid{
+  display:grid;grid-template-columns:repeat(2,1fr);gap:5px;
+  margin-bottom:8px;
+}
+.macro-btn{
+  background:rgba(136,0,255,0.08);
+  border:1px solid rgba(136,0,255,0.2);
+  border-radius:var(--radius);
+  color:var(--text);cursor:pointer;
+  padding:8px 6px;
+  font-family:'Share Tech Mono',monospace;
+  font-size:0.52rem;
+  display:flex;flex-direction:column;align-items:flex-start;gap:1px;
+  position:relative;transition:all 0.12s;
+  -webkit-tap-highlight-color:transparent;
+  text-align:left;
+}
+.macro-btn:active{transform:scale(0.96);filter:brightness(1.3);}
+.macro-btn .mc-name{font-size:0.55rem;color:var(--energia-l);}
+.macro-btn .mc-expr{font-size:0.44rem;opacity:0.5;letter-spacing:0.5px;}
+.macro-del{
+  position:absolute;top:3px;right:5px;
+  background:none;border:none;color:rgba(255,80,80,0.4);
+  cursor:pointer;font-size:0.65rem;padding:0;
+  line-height:1;
+}
+.macro-del:hover{color:rgba(255,80,80,0.9);}
+.macro-add-btn{
+  width:100%;padding:8px;
+  background:rgba(136,0,255,0.06);
+  border:1px dashed rgba(136,0,255,0.25);
+  border-radius:var(--radius);
+  color:var(--dim);cursor:pointer;
+  font-family:'Share Tech Mono',monospace;font-size:0.52rem;
+  letter-spacing:1px;transition:all 0.12s;
+}
+.macro-add-btn:active{filter:brightness(1.3);}
 </style>
 </head>
 <body>
@@ -1723,6 +1788,47 @@ a,button,input,select,textarea,[onclick],[role="button"] {
           <input class="expr-inp" type="text" id="expr-inp" placeholder="2d6+3 · 1d20-2 · 4d8...">
           <button class="expr-go" onclick="rollExpr()">EXPR</button>
         </div>
+
+        <!-- ROLAGEM RÁPIDA -->
+        <div class="quick-section-title">⚡ ROLAGEM RÁPIDA</div>
+        <div class="quick-roll-grid" id="quick-roll-grid">
+          <button class="qroll-btn" style="border-color:rgba(255,34,68,0.3)" onclick="quickRoll('Ataque','for','❤️')">
+            <span class="qr-icon">❤️</span>
+            <span class="qr-label">ATAQUE</span>
+            <span class="qr-mod" id="qr-mod-for"></span>
+          </button>
+          <button class="qroll-btn" style="border-color:rgba(0,255,170,0.3)" onclick="quickRoll('Defesa','agi','🛡️')">
+            <span class="qr-icon">🛡️</span>
+            <span class="qr-label">DEFESA</span>
+            <span class="qr-mod" id="qr-mod-agi"></span>
+          </button>
+          <button class="qroll-btn" style="border-color:rgba(170,51,255,0.3)" onclick="quickRoll('Sanidade','pre','🧠')">
+            <span class="qr-icon">🧠</span>
+            <span class="qr-label">SANIDADE</span>
+            <span class="qr-mod" id="qr-mod-pre"></span>
+          </button>
+          <button class="qroll-btn" style="border-color:rgba(255,187,0,0.3)" onclick="quickRoll('Percepção','int','👁️')">
+            <span class="qr-icon">👁️</span>
+            <span class="qr-label">PERCEPÇÃO</span>
+            <span class="qr-mod" id="qr-mod-int"></span>
+          </button>
+          <button class="qroll-btn" style="border-color:rgba(136,0,255,0.4)" onclick="quickRoll('Ocultismo','int','✦')">
+            <span class="qr-icon">✦</span>
+            <span class="qr-label">OCULTISMO</span>
+            <span class="qr-mod" id="qr-mod-int2"></span>
+          </button>
+          <button class="qroll-btn" style="border-color:rgba(255,153,0,0.3)" onclick="quickRoll('Força','for','💪')">
+            <span class="qr-icon">💪</span>
+            <span class="qr-label">FORÇA</span>
+            <span class="qr-mod" id="qr-mod-for2"></span>
+          </button>
+        </div>
+
+        <!-- MACROS -->
+        <div class="quick-section-title">🔮 MACROS</div>
+        <div class="macro-grid" id="macro-grid"></div>
+        <button class="macro-add-btn" onclick="openMacroModal()">＋ NOVA MACRO</button>
+
         <div class="log-box">
           <div class="log-hdr">
             <span class="log-hdr-txt">REGISTRO</span>
@@ -2369,12 +2475,12 @@ a,button,input,select,textarea,[onclick],[role="button"] {
   window.addEventListener('resize',resize);resize();
   const ELEMS=['rgba(220,0,0','rgba(180,0,20','rgba(140,0,0','rgba(200,10,10','rgba(100,0,0'];
   function frame(){
-    ctx.fillStyle='rgba(5,5,8,0.045)';ctx.fillRect(0,0,W,H);
+    ctx.fillStyle='rgba(5,5,8,0.09)';ctx.fillRect(0,0,W,H);
     drops.forEach((y,i)=>{
       const ch=RUNES[Math.floor(Math.random()*RUNES.length)];
       const col=ELEMS[Math.floor(Math.random()*ELEMS.length)];
       ctx.font=`13px 'Share Tech Mono',monospace`;
-      ctx.fillStyle=`${col},${0.04+Math.random()*0.12})`;
+      ctx.fillStyle=`${col},${0.015+Math.random()*0.04})`;
       ctx.fillText(ch,i*COLS_W,y);
       drops[i]+=14;
       if(drops[i]>H&&Math.random()>.97)drops[i]=Math.random()*-60;
@@ -2564,6 +2670,7 @@ function renderAll(){
   renderLibrary();
   renderInventory();
   renderWiki();
+  renderQuickRollMods();
   save();
 }
 
@@ -3511,6 +3618,128 @@ function showDiceResultArena(num,label,type=''){
     if(hint)hint.style.opacity='';
   },4000);
 }
+/* ══════════════════════════════════════════
+   ROLAGEM RÁPIDA
+══════════════════════════════════════════ */
+function renderQuickRollMods(){
+  const p=P();
+  const mods={for:p.attrs.for,agi:p.attrs.agi,int:p.attrs.int,pre:p.attrs.pre};
+  const ids={for:['qr-mod-for','qr-mod-for2'],agi:['qr-mod-agi'],int:['qr-mod-int','qr-mod-int2'],pre:['qr-mod-pre']};
+  Object.entries(ids).forEach(([attr,elIds])=>{
+    elIds.forEach(id=>{
+      const el=document.getElementById(id);
+      if(el) el.textContent=mods[attr]>0?'+'+mods[attr]:mods[attr];
+    });
+  });
+}
+
+function quickRoll(label,attr,icon){
+  const p=P();
+  const attrVal=p.attrs[attr]||1;
+  const mod=(attrVal-1)*2; // simples: cada ponto de attr = +2 no teste
+  const n=attrVal; // rola N dados e pega o melhor (como no sistema OP)
+  const rolls=Array.from({length:n},()=>Math.floor(Math.random()*20)+1);
+  const best=Math.max(...rolls);
+  const total=best+mod;
+  const isCrit=best===20,isFail=best===1&&n===1;
+  showDiceResultArena(total,icon+' '+label.toUpperCase(),isCrit?'CRIT':isFail?'FAIL':'');
+  log(`${icon} ${label} [${rolls.join(',')}]+${mod}=<b>${total}</b>${isCrit?' ★ CRÍTICO!':isFail?' ✕ FALHA!':''}`,isCrit?'crit':isFail?'fail':'');
+  addHist(total,20,isCrit,isFail);
+  spawnParticles(total,isCrit?'#ffcc00':isFail?'#ff2244':'#00ffaa');
+  if(isCrit)aiNarrateEvent('critico',label+' d20='+best);
+  else if(isFail)aiNarrateEvent('falha',label+' d20='+best);
+}
+
+/* ══════════════════════════════════════════
+   MACROS
+══════════════════════════════════════════ */
+let _macros=[];
+
+function loadMacros(){
+  try{_macros=JSON.parse(localStorage.getItem('op_macros')||'[]');}catch(e){_macros=[];}
+  renderMacros();
+}
+function saveMacros(){
+  try{localStorage.setItem('op_macros',JSON.stringify(_macros));}catch(e){}
+}
+function renderMacros(){
+  const el=document.getElementById('macro-grid');
+  if(!el)return;
+  if(!_macros.length){
+    el.innerHTML='<div style="grid-column:span 2;font-size:0.48rem;color:var(--dim);padding:6px 0;text-align:center">Nenhuma macro. Crie uma abaixo!</div>';
+    return;
+  }
+  el.innerHTML=_macros.map((m,i)=>`
+    <button class="macro-btn" onclick="runMacro(${i})">
+      <span class="mc-name">${m.icon||'🎲'} ${m.name}</span>
+      <span class="mc-expr">${m.expr}</span>
+      <button class="macro-del" onclick="delMacro(${i},event)" title="Remover">✕</button>
+    </button>
+  `).join('');
+}
+function openMacroModal(idx){
+  if(idx===undefined)idx=-1;
+  document.getElementById('mc-edit-idx').value=idx;
+  if(idx>=0&&_macros[idx]){
+    const m=_macros[idx];
+    document.getElementById('mc-name-inp').value=m.name||'';
+    document.getElementById('mc-expr-inp').value=m.expr||'';
+    document.getElementById('mc-icon-inp').value=m.icon||'';
+    document.getElementById('modal-macro-title').textContent='✏️ EDITAR MACRO';
+  }else{
+    document.getElementById('mc-name-inp').value='';
+    document.getElementById('mc-expr-inp').value='';
+    document.getElementById('mc-icon-inp').value='';
+    document.getElementById('modal-macro-title').textContent='🔮 NOVA MACRO';
+  }
+  openModal('modal-macro');
+}
+function saveMacro(){
+  const name=(document.getElementById('mc-name-inp').value||'').trim();
+  const expr=(document.getElementById('mc-expr-inp').value||'').trim();
+  const icon=(document.getElementById('mc-icon-inp').value||'').trim();
+  if(!name){toast('Nome é obrigatório!');return;}
+  if(!expr){toast('Expressão é obrigatória!');return;}
+  const idx=parseInt(document.getElementById('mc-edit-idx').value);
+  const m={name,expr,icon:icon||'🎲'};
+  if(idx>=0&&idx<_macros.length)_macros[idx]=m;
+  else _macros.push(m);
+  saveMacros();renderMacros();
+  closeModal('modal-macro');
+  toast(idx>=0?'Macro atualizada!':'✦ Macro criada: '+name);
+}
+function delMacro(i,e){
+  e.stopPropagation();
+  _macros.splice(i,1);saveMacros();renderMacros();
+  toast('Macro removida.');
+}
+function runMacro(i){
+  const m=_macros[i];if(!m)return;
+  // Reuse rollExpr logic
+  document.getElementById('expr-inp').value=m.expr;
+  // Run it and label with macro name
+  const expr=m.expr.trim().toLowerCase();
+  const parts=expr.split(/[+\-]/).map(s=>s.trim());
+  // Try to parse as NdS+bonus
+  const full=expr.replace(/\s/g,'');
+  const match=full.match(/^(\d*)d(\d+)([+\-]\d+)?$/);
+  if(match){
+    const count=parseInt(match[1])||1,sides=parseInt(match[2]),bonus=parseInt(match[3])||0;
+    if(count>=1&&count<=20&&sides>=2){
+      const rolls=Array.from({length:count},()=>Math.floor(Math.random()*sides)+1);
+      const total=rolls.reduce((a,b)=>a+b,0)+bonus;
+      const isCrit=rolls.every(r=>r===sides)&&count===1;
+      showDiceResultArena(total,(m.icon||'🎲')+' '+m.name.toUpperCase(),isCrit?'CRIT':'');
+      log(`${m.icon||'🎲'} ${m.name}: [${rolls.join(', ')}]${bonus?(bonus>0?'+':'')+bonus:''}=<b>${total}</b>${isCrit?' ★':''}`,isCrit?'crit':'');
+      addHist(total,sides,isCrit,false);
+      spawnParticles(total,isCrit?'#ffcc00':'#bb44ff');
+      return;
+    }
+  }
+  // Fallback: just roll expr
+  rollExpr();
+}
+
 function addHist(v,s,c,f){
   diceHist.unshift({v,s,c,f});if(diceHist.length>10)diceHist.pop();
   const hist=document.getElementById('arena-hist');
@@ -4606,7 +4835,7 @@ function init(){
       const d=document.createElement('div');
       d.className='para-sym';
       d.textContent=SYMS[i%SYMS.length];
-      const op=(0.04+Math.random()*0.08).toFixed(3);
+      const op=(0.02+Math.random()*0.04).toFixed(3);
       const col=COLORS[i%3].replace('VAR',op);
       d.style.cssText=[
         'left:'+(5+Math.random()*90)+'%',
@@ -4623,6 +4852,8 @@ function init(){
   // Random VHS glitch every 8-20s
   setInterval(()=>{if(Math.random()<0.3)triggerVHSGlitch();},9000);
   try{const aiLib=JSON.parse(localStorage.getItem('op_ai_library')||'[]');aiLib.forEach(r=>{if(!RITUALS_DB.find(x=>x.n===r.n))RITUALS_DB.push(r);});}catch(e){}
+  loadMacros();
+  renderQuickRollMods();
   log('Sistema iniciado. A Membrana está instável.','info');
   setTimeout(()=>log('Toque nos atributos para testar · Toque nos números de status para editar','info'),1200);
 }
@@ -4640,6 +4871,7 @@ document.addEventListener('keydown',e=>{
   if(id==='modal-stat')applyStatEdit();
   if(id==='modal-new-char')createChar();
   if(id==='modal-ritual')addCustomRitual();
+  if(id==='modal-macro')saveMacro();
 });
 
 // Swipe to navigate — only intentional horizontal swipes (not accidental scroll)
@@ -4702,5 +4934,24 @@ function installPWA(){
   _deferredPrompt.userChoice.then(() => { _deferredPrompt = null; });
 }
 </script>
+<!-- MODAL MACRO -->
+<div class="modal-bg" id="modal-macro">
+  <div class="modal-sheet" style="--m-c:var(--energia-l)">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modal-macro-title">🔮 NOVA MACRO</div>
+    <input type="hidden" id="mc-edit-idx" value="-1">
+    <label>NOME DA MACRO</label>
+    <input type="text" id="mc-name-inp" placeholder="Ex: Espada Longa, Ritual de Sangue...">
+    <label>EXPRESSÃO DE DADOS</label>
+    <input type="text" id="mc-expr-inp" placeholder="Ex: 1d20+5 · 2d8+3 · 1d6">
+    <label>ÍCONE (emoji opcional)</label>
+    <input type="text" id="mc-icon-inp" placeholder="⚔️ 🔮 🩸 ⚡ 💀" maxlength="4" style="font-size:1.2rem;text-align:center;">
+    <div class="mbtns">
+      <button class="mbtn mbtn-p" onclick="saveMacro()">SALVAR</button>
+      <button class="mbtn mbtn-s" onclick="closeModal('modal-macro')">CANCELAR</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
